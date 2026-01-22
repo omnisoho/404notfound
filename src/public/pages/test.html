@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Budget Planner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .budget-input-section {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .budget-input-section label {
+            font-size: 1.5em;
+            color: #333;
+            display: block;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .currency-select {
+            padding: 15px 20px;
+            font-size: 1.2em;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .currency-select:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+        }
+
+        .budget-input {
+            padding: 15px 25px;
+            font-size: 1.5em;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .budget-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+        }
+
+        .chart-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            position: relative;
+        }
+
+        .sliders-section {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .slider-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .slider-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .slider-label {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .slider-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+            background: #ddd;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #764ba2;
+            transform: scale(1.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .slider::-moz-range-thumb:hover {
+            background: #764ba2;
+            transform: scale(1.2);
+        }
+
+        .amount-display {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .summary-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-item h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .summary-item p {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .budget-input {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✈️ Travel Budget Planner</h1>
+            <p>Plan your perfect trip with smart budget allocation</p>
+        </div>
+
+        <div class="content">
+            <div class="budget-input-section">
+                <label for="totalBudget">What's your total budget for the trip?</label>
+                <div class="input-group">
+                    <select class="currency-select" id="currency">
+                        <option value="SGD" selected>SGD (S$)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="JPY">JPY (¥)</option>
+                        <option value="AUD">AUD (A$)</option>
+                        <option value="CNY">CNY (¥)</option>
+                        <option value="MYR">MYR (RM)</option>
+                    </select>
+                    <input type="number" id="totalBudget" class="budget-input" placeholder="5000" min="0" step="100">
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-container">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+            </div>
+
+            <div class="sliders-section">
+                <div class="slider-item">
+                    <div class="slider-header">
+                        <span class="slider-label">
+                            <span class="color-indicator" style="background: #4299e1;"></span>
+                            🏨 Accommodation
+                        </span>
+                        <span class="slider-value" id="accomValue">30%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="30" class="slider" id="accomSlider">
+                    <div class="amount-display" id="accomAmount">S$ 0</div>
+                </div>
+
+                <div class="slider-item">
+                    <div class="slider-header">
+                        <span class="slider-label">
+                            <span class="color-indicator" style="background: #f6ad55;"></span>
+                            🍽️ Food
+                        </span>
+                        <span class="slider-value" id="foodValue">25%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="25" class="slider" id="foodSlider">
+                    <div class="amount-display" id="foodAmount">S$ 0</div>
+                </div>
+
+                <div class="slider-item">
+                    <div class="slider-header">
+                        <span class="slider-label">
+                            <span class="color-indicator" style="background: #9f7aea;"></span>
+                            🛍️ Shopping
+                        </span>
+                        <span class="slider-value" id="shopValue">15%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="15" class="slider" id="shopSlider">
+                    <div class="amount-display" id="shopAmount">S$ 0</div>
+                </div>
+
+                <div class="slider-item">
+                    <div class="slider-header">
+                        <span class="slider-label">
+                            <span class="color-indicator" style="background: #fc8181;"></span>
+                            🎡 Attractions
+                        </span>
+                        <span class="slider-value" id="attrValue">15%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="15" class="slider" id="attrSlider">
+                    <div class="amount-display" id="attrAmount">S$ 0</div>
+                </div>
+
+                <div class="slider-item">
+                    <div class="slider-header">
+                        <span class="slider-label">
+                            <span class="color-indicator" style="background: #48bb78;"></span>
+                            🚕 Transport
+                        </span>
+                        <span class="slider-value" id="transValue">10%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="10" class="slider" id="transSlider">
+                    <div class="amount-display" id="transAmount">S$ 0</div>
+                </div>
+
+                <div class="slider-item">
+                    <div class="slider-header">
+                        <span class="slider-label">
+                            <span class="color-indicator" style="background: #cbd5e0;"></span>
+                            💰 Emergency Buffer
+                        </span>
+                        <span class="slider-value" id="bufferValue">5%</span>
+                    </div>
+                    <input type="range" min="5" max="100" value="5" class="slider" id="bufferSlider">
+                    <div class="amount-display" id="bufferAmount">S$ 0</div>
+                </div>
+            </div>
+
+            <div class="summary-section">
+                <h2>📊 Budget Summary</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h3>Total Budget</h3>
+                        <p id="summaryTotal">S$ 0</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Allocated</h3>
+                        <p id="summaryAllocated">S$ 0</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Emergency Fund</h3>
+                        <p id="summaryBuffer">S$ 0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const currencySymbols = {
+            SGD: 'S$',
+            USD: '$',
+            EUR: '€',
+            GBP: '£',
+            JPY: '¥',
+            AUD: 'A$',
+            CNY: '¥',
+            MYR: 'RM'
+        };
+
+        let currentCurrency = 'SGD';
+        let totalBudget = 0;
+        let chart;
+
+        const categories = {
+            accom: { slider: null, value: null, amount: null, percentage: 30, color: '#4299e1', label: 'Accommodation' },
+            food: { slider: null, value: null, amount: null, percentage: 25, color: '#f6ad55', label: 'Food' },
+            shop: { slider: null, value: null, amount: null, percentage: 15, color: '#9f7aea', label: 'Shopping' },
+            attr: { slider: null, value: null, amount: null, percentage: 15, color: '#fc8181', label: 'Attractions' },
+            trans: { slider: null, value: null, amount: null, percentage: 10, color: '#48bb78', label: 'Transport' },
+            buffer: { slider: null, value: null, amount: null, percentage: 5, color: '#cbd5e0', label: 'Emergency Buffer' }
+        };
+
+        function initElements() {
+            for (let key in categories) {
+                categories[key].slider = document.getElementById(key + 'Slider');
+                categories[key].value = document.getElementById(key + 'Value');
+                categories[key].amount = document.getElementById(key + 'Amount');
+            }
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.values(categories).map(c => c.label),
+                    datasets: [{
+                        data: Object.values(categories).map(c => c.percentage),
+                        backgroundColor: Object.values(categories).map(c => c.color),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const amount = (totalBudget * value / 100).toFixed(2);
+                                    return `${label}: ${value}% (${currencySymbols[currentCurrency]} ${amount})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            chart.data.datasets[0].data = Object.values(categories).map(c => c.percentage);
+            chart.update();
+        }
+
+        function formatCurrency(amount) {
+            return `${currencySymbols[currentCurrency]} ${amount.toFixed(2)}`;
+        }
+
+        function updateDisplays() {
+            const total = Object.values(categories).reduce((sum, cat) => sum + cat.percentage, 0);
+            
+            for (let key in categories) {
+                const cat = categories[key];
+                const amount = (totalBudget * cat.percentage / 100);
+                cat.value.textContent = cat.percentage + '%';
+                cat.amount.textContent = formatCurrency(amount);
+            }
+
+            document.getElementById('summaryTotal').textContent = formatCurrency(totalBudget);
+            
+            const allocated = totalBudget * (100 - categories.buffer.percentage) / 100;
+            document.getElementById('summaryAllocated').textContent = formatCurrency(allocated);
+            
+            const buffer = totalBudget * categories.buffer.percentage / 100;
+            document.getElementById('summaryBuffer').textContent = formatCurrency(buffer);
+
+            updateChart();
+        }
+
+        function normalizePercentages(changedKey) {
+            const total = Object.values(categories).reduce((sum, cat) => sum + cat.percentage, 0);
+            
+            if (total > 100) {
+                const excess = total - 100;
+                const otherKeys = Object.keys(categories).filter(k => k !== changedKey);
+                const otherTotal = otherKeys.reduce((sum, k) => sum + categories[k].percentage, 0);
+                
+                if (otherTotal > 0) {
+                    otherKeys.forEach(key => {
+                        const reduction = (categories[key].percentage / otherTotal) * excess;
+                        categories[key].percentage = Math.max(0, categories[key].percentage - reduction);
+                        categories[key].slider.value = categories[key].percentage;
+                    });
+                }
+            } else if (total < 100) {
+                const deficit = 100 - total;
+                categories.buffer.percentage = Math.min(100, categories.buffer.percentage + deficit);
+                categories.buffer.slider.value = categories.buffer.percentage;
+            }
+            
+            updateDisplays();
+        }
+
+        function setupListeners() {
+            document.getElementById('totalBudget').addEventListener('input', function(e) {
+                totalBudget = parseFloat(e.target.value) || 0;
+                updateDisplays();
+            });
+
+            document.getElementById('currency').addEventListener('change', function(e) {
+                currentCurrency = e.target.value;
+                updateDisplays();
+            });
+
+            for (let key in categories) {
+                categories[key].slider.addEventListener('input', function(e) {
+                    categories[key].percentage = parseFloat(e.target.value);
+                    normalizePercentages(key);
+                });
+            }
+        }
+
+        window.addEventListener('load', function() {
+            initElements();
+            initChart();
+            setupListeners();
+            updateDisplays();
+        });
+    </script>
+</body>
+</html>

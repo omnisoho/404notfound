@@ -1,0 +1,1369 @@
+      /* ========================================================================
+         CSS VARIABLES - Design System Tokens
+         ======================================================================== */
+      :root {
+        --ink: #060606;
+        --canvas: #f3f1eb;
+        --sheet: #fefdf9;
+        --border: #dcd6c8;
+        --muted: #6d7177;
+        --navy: #1e3a5f;
+        --navy-light: #2d4f7c;
+        --easing-premium: cubic-bezier(0.16, 1, 0.3, 1);
+        --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --transition-fast: 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+        --transition-base: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      /* ========================================================================
+         FONTS
+         ======================================================================== */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap");
+
+      /* ========================================================================
+         BASE STYLES
+         ======================================================================== */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* ========================================================================
+         ANIMATIONS - SCROLL REVEAL
+         ======================================================================== */
+      .scroll-reveal {
+        opacity: 0;
+        transform: translateY(60px);
+        transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .scroll-reveal.revealed {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .scroll-reveal-left {
+        opacity: 0;
+        transform: translateX(-80px);
+        transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .scroll-reveal-left.revealed {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .scroll-reveal-right {
+        opacity: 0;
+        transform: translateX(80px);
+        transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .scroll-reveal-right.revealed {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .scroll-reveal-scale {
+        opacity: 0;
+        transform: scale(0.85);
+        transition: opacity 1.3s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 1.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .scroll-reveal-scale.revealed {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      /* ========================================================================
+         ANIMATIONS - PARALLAX
+         ======================================================================== */
+      /* Parallax elements */
+      .parallax {
+        will-change: transform;
+        transition: transform 0.1s linear;
+      }
+
+      /* ========================================================================
+         ANIMATION DELAYS
+         ======================================================================== */
+      /* Stagger delays */
+      .delay-100 {
+        transition-delay: 0.1s;
+      }
+      .delay-200 {
+        transition-delay: 0.2s;
+      }
+      .delay-300 {
+        transition-delay: 0.3s;
+      }
+      .delay-400 {
+        transition-delay: 0.4s;
+      }
+      .delay-500 {
+        transition-delay: 0.5s;
+      }
+      .delay-600 {
+        transition-delay: 0.6s;
+      }
+
+      /* ========================================================================
+         ANIMATIONS - PAGE LOAD
+         ======================================================================== */
+      /* Initial page load */
+      .fade-in-initial {
+        animation: fadeInInitial 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        opacity: 0;
+      }
+
+      @keyframes fadeInInitial {
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* ========================================================================
+         COMPONENTS - SCROLL INDICATOR
+         ======================================================================== */
+      /* Smooth scroll indicator */
+      .scroll-indicator {
+        opacity: 0;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite,
+          fadeInDelayed 1s cubic-bezier(0.4, 0, 0.2, 1) 2s forwards;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(8px);
+        }
+      }
+
+      @keyframes fadeInDelayed {
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* ========================================================================
+         DATE PICKER - COMPACT UX-FIRST DESIGN
+         ======================================================================== */
+
+      /* Container - Compact & Always Visible */
+      #flightDatePicker {
+        position: fixed !important;
+        z-index: 10000 !important;
+        background: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
+        border-radius: 12px !important;
+        overflow: auto !important;
+        width: 300px !important;
+        max-width: calc(100vw - 32px) !important;
+        max-height: calc(100vh - 32px) !important;
+      }
+
+      /* Animation States */
+      #flightDatePicker.hidden {
+        opacity: 0 !important;
+        transform: scale(0.96) !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+        transition: opacity 0.15s ease, transform 0.15s ease !important;
+      }
+
+      #flightDatePicker:not(.hidden) {
+        opacity: 1 !important;
+        transform: scale(1) !important;
+        visibility: visible !important;
+        transition: opacity 0.2s ease, transform 0.2s ease !important;
+      }
+
+      /* Content Padding - Compact */
+      #flightDatePicker .date-picker-content {
+        padding: 16px !important;
+      }
+
+      #flightDatePicker .grid {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+      }
+
+      #datePickerDays {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 6px !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        margin-top: 8px !important;
+      }
+
+      #datePickerDays button {
+        width: 100% !important;
+        aspect-ratio: 1 !important;
+        min-width: 0 !important;
+        flex-shrink: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        min-height: 36px !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 1.5px solid transparent !important;
+        border-radius: 8px !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        position: relative !important;
+        user-select: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: transparent !important;
+        color: #1f2937 !important;
+        transition: all 0.15s ease !important;
+        overflow: hidden !important;
+      }
+
+      /* Hover state - simple and clean */
+      #datePickerDays button:not(.other-month):not(:disabled):not(.past):hover {
+        background-color: #f3f4f6 !important;
+        border-color: #d1d5db !important;
+        transform: scale(1.05) !important;
+      }
+
+      /* Today indicator */
+      #datePickerDays button.today {
+        border-color: #1e3a5f !important;
+        font-weight: 600 !important;
+        color: #1e3a5f !important;
+      }
+
+      #datePickerDays button.today:not(.selected)::after {
+        content: '' !important;
+        position: absolute !important;
+        bottom: 4px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 4px !important;
+        height: 4px !important;
+        border-radius: 50% !important;
+        background-color: #1e3a5f !important;
+      }
+
+      /* Selected state */
+      #datePickerDays button.selected {
+        background: #1e3a5f !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        border-color: #1e3a5f !important;
+        box-shadow: 0 2px 6px rgba(30, 58, 95, 0.3) !important;
+      }
+
+      #datePickerDays button.selected:hover {
+        background: #2a4a70 !important;
+        transform: scale(1.02) !important;
+      }
+
+      /* Disabled/past dates */
+      #datePickerDays button:disabled,
+      #datePickerDays button.past {
+        opacity: 0.25 !important;
+        cursor: not-allowed !important;
+        pointer-events: none !important;
+        color: #9ca3af !important;
+      }
+
+      /* Focus state for accessibility */
+      #datePickerDays button:focus-visible {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.3) !important;
+        z-index: 10 !important;
+      }
+
+      /* Active press state */
+      #datePickerDays button:active:not(:disabled):not(.past) {
+        transform: scale(0.95) !important;
+      }
+
+      /* Month/Year header styling */
+      #datePickerMonthYear {
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        letter-spacing: -0.01em !important;
+        color: #111827 !important;
+      }
+
+      /* Navigation buttons - compact */
+      #datePickerPrevMonth,
+      #datePickerNextMonth {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 6px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.15s ease !important;
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      #datePickerPrevMonth:hover:not(:disabled),
+      #datePickerNextMonth:hover:not(:disabled) {
+        background-color: #f3f4f6 !important;
+      }
+
+      #datePickerPrevMonth:active:not(:disabled),
+      #datePickerNextMonth:active:not(:disabled) {
+        transform: scale(0.9) !important;
+      }
+
+      #datePickerPrevMonth:disabled,
+      #datePickerNextMonth:disabled {
+        opacity: 0.3 !important;
+        cursor: not-allowed !important;
+      }
+
+      /* Day of week headers - compact */
+      #flightDatePicker .grid.grid-cols-7.gap-1.mb-2 > div {
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        color: #6b7280 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding: 6px 0 !important;
+      }
+
+      /* Today and Tomorrow buttons - compact */
+      #datePickerButtons {
+        background-color: #f9fafb !important;
+        border-top: 1px solid #e5e7eb !important;
+        padding: 12px !important;
+      }
+
+      #flightDateToday,
+      #flightDateTomorrow {
+        flex: 1 !important;
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+        padding: 8px 12px !important;
+        transition: all 0.15s ease !important;
+        border: 1px solid #d1d5db !important;
+        background-color: #ffffff !important;
+      }
+
+      #flightDateToday:hover,
+      #flightDateTomorrow:hover {
+        background-color: #1e3a5f !important;
+        color: #ffffff !important;
+        border-color: #1e3a5f !important;
+      }
+
+      #flightDateToday:active,
+      #flightDateTomorrow:active {
+        transform: scale(0.96) !important;
+      }
+
+      /* Other month dates styling */
+      #datePickerDays button.other-month {
+        opacity: 0.3 !important;
+        cursor: default !important;
+        pointer-events: none !important;
+      }
+
+      .flight-result-item {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .flight-result-item.visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      /* ========================================================================
+         COMPONENTS - MODAL
+         ======================================================================== */
+
+      /* ========================================================================
+         UTILITY CLASSES
+         ======================================================================== */
+      /* Gradient text */
+      .gradient-text {
+        background: linear-gradient(135deg, #060606 0%, #6d7177 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* Hover lift effect */
+      .hover-lift {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(6, 6, 6, 0.15);
+      }
+
+      /* Underline animation - Refined */
+      .underline-animate {
+        position: relative;
+        transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .underline-animate::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -3px;
+        width: 0;
+        height: 0.5px;
+        background: currentColor;
+        transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity: 0.6;
+      }
+
+      .underline-animate:hover {
+        color: var(--ink);
+        transform: translateX(2px);
+      }
+
+      .underline-animate:hover::after {
+        width: 100%;
+        opacity: 1;
+      }
+
+      /* Footer reveal animations */
+      .footer-section {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .footer-section.revealed {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .footer-section.revealed .footer-link {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Social icon hover effects */
+      .footer-social-link {
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                    background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .footer-social-link:hover {
+        border-color: var(--navy) !important;
+        background-color: var(--navy) !important;
+      }
+
+      .footer-social-link i,
+      .footer-social-link svg {
+        position: relative;
+        z-index: 1;
+        color: var(--muted) !important;
+        stroke: var(--muted) !important;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                    color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                    stroke 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .footer-social-link:hover i,
+      .footer-social-link:hover svg {
+        transform: scale(1.05) rotate(-5deg);
+        color: var(--sheet) !important;
+        stroke: var(--sheet) !important;
+      }
+
+      /* Footer link hover effects */
+      .footer-link {
+        position: relative;
+        display: inline-block !important;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        width: auto !important;
+      }
+
+      .footer-link::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 1px;
+        background: var(--ink);
+        transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .footer-link:hover::after {
+        width: 100%;
+      }
+
+      .footer-link:hover {
+        transform: translateX(4px) translateY(0) !important;
+      }
+
+      /* Stagger children animation */
+      .stagger-children > * {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      .stagger-children > *:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .stagger-children > *:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .stagger-children > *:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .stagger-children > *:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+      .stagger-children > *:nth-child(5) {
+        animation-delay: 0.5s;
+      }
+      .stagger-children > *:nth-child(6) {
+        animation-delay: 0.6s;
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ========================================================================
+         NAVIGATION
+         ======================================================================== */
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 100;
+        background: var(--canvas);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-top: 1.5rem;
+        padding-bottom: 1.25rem;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 2rem;
+        max-width: 80rem;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+      }
+
+      /* Default state - border only on container width */
+      /* Override the border-b-2 class to be constrained to content width */
+      header {
+        border-bottom: none;
+      }
+
+      /* Create constrained border that matches the container width */
+      header::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 2.5rem);
+        height: 2px;
+        background: rgba(0, 0, 0, 0.1);
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+          left 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+          transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+      }
+
+      /* Scrolled State - Translucent background with full-width border */
+      header.scrolled {
+        background: rgba(243, 241, 235, 0.85) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      /* Expand the constrained border to full width seamlessly */
+      header.scrolled::before {
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100vw;
+      }
+
+      /* Nav link journey effect - header only */
+      header nav a {
+        position: relative;
+        display: inline-block;
+        padding: 0.625rem 1.25rem !important;
+      }
+
+      header nav a::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 4px;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          #060606 0%,
+          #060606 50%,
+          transparent 50%,
+          transparent 100%
+        );
+        background-size: 200% 100%;
+        background-position: 100% 0;
+        opacity: 0;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      header nav a:hover::before {
+        opacity: 1;
+        background-position: 0 0;
+      }
+
+      header nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 3px;
+        width: 3px;
+        height: 3px;
+        background: #060606;
+        border-radius: 50%;
+        opacity: 0;
+        box-shadow: calc(100% - 3px) 0 0 0 #060606;
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition-delay: 0.2s;
+      }
+
+      header nav a:hover::after {
+        opacity: 1;
+        transform: scale(1.3);
+      }
+
+      header nav a:hover {
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(6, 6, 6, 0.03) 100%
+        );
+      }
+
+      /* ========================================================================
+         COMPONENTS - USER DROPDOWN
+         ======================================================================== */
+      /* User chip hover effect */
+      #userChip {
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      #userChip::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 2px;
+        height: 0;
+        background: #060606;
+        transform: translateY(-50%);
+        transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      #userChip:hover::before {
+        height: 100%;
+      }
+
+      #userChip:hover {
+        padding-left: 1.75rem;
+      }
+
+      #userChip:hover #userAvatar {
+        transform: rotate(3deg) scale(1.05);
+        box-shadow: 0 0 0 1px rgba(6, 6, 6, 0.1), 0 2px 8px rgba(6, 6, 6, 0.12);
+      }
+
+      #userChip:hover #userName {
+        letter-spacing: 0.02em;
+      }
+
+      #userAvatar {
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      #userName {
+        transition: letter-spacing 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* User dropdown - Smooth and elegant */
+      #userDropdown {
+        min-width: 180px;
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
+          0 1px 4px rgba(0, 0, 0, 0.04);
+        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                    visibility 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top right;
+        padding: 0.25rem 0;
+        transform: translateY(-8px) scale(0.96);
+        overflow: hidden;
+        position: absolute;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        top: 100%;
+        right: 0;
+        margin-top: 0.5rem;
+      }
+
+      #userDropdown.active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+      }
+
+      #userDropdown::before {
+        content: "";
+        position: absolute;
+        top: -5px;
+        right: 20px;
+        width: 10px;
+        height: 10px;
+        background: var(--sheet);
+        border-left: 1px solid var(--border);
+        border-top: 1px solid var(--border);
+        transform: rotate(45deg);
+        box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.03);
+        z-index: 1;
+      }
+
+      .dropdown-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: var(--ink);
+        transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                    padding-left 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                    color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+      }
+
+      .dropdown-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: rgba(30, 58, 95, 0.06);
+        transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 0;
+        border-radius: 0 1px 1px 0;
+      }
+
+      .dropdown-item:hover::before {
+        width: 2px;
+      }
+
+      .dropdown-item:hover {
+        background: rgba(30, 58, 95, 0.04);
+        padding-left: 1.125rem;
+        color: var(--navy);
+      }
+
+      .dropdown-item:active {
+        background: rgba(30, 58, 95, 0.06);
+      }
+
+      .dropdown-item i {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2;
+        color: var(--muted);
+        transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .dropdown-item:hover i {
+        color: var(--navy);
+      }
+
+      .dropdown-item span {
+        position: relative;
+        z-index: 1;
+        transition: color var(--transition-base);
+      }
+
+      .dropdown-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 0.25rem 0;
+        opacity: 0.5;
+      }
+
+      /* Remove backdrop blur/darken effect */
+      #userDropdownBackdrop {
+        display: none !important;
+      }
+
+      /* ========================================================================
+         COMPONENTS - CARDS
+         ======================================================================== */
+      /* Card hover effects */
+      .stat-card {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(6, 6, 6, 0.08);
+      }
+
+      /* Flight Cards - Production Grade Styling */
+      #activeFlightsList {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      /* Ensure flight cards have proper padding */
+      #activeFlightsList > article {
+        padding-top: 1.5rem !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 0 !important;
+        margin: 0;
+      }
+
+      /* Status Badge - Color-coded and thoughtful design */
+      .flight-status-badge {
+        position: absolute !important;
+        top: 2rem !important;
+        right: 2rem !important;
+        z-index: 10;
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        animation: statusBadgeFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .flight-status-badge[data-status="in-flight"] {
+        background: linear-gradient(135deg, rgb(236, 253, 245) 0%, rgb(209, 250, 229) 100%);
+        border-color: rgb(167, 243, 208);
+        color: rgb(4, 120, 87);
+        box-shadow: 
+          0 2px 8px rgba(0, 0, 0, 0.08),
+          0 0 0 0 rgba(16, 185, 129, 0.4),
+          0 0 20px rgba(16, 185, 129, 0.2);
+        animation: statusBadgeFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                   statusPulseEmerald 2.5s ease-in-out infinite 0.5s,
+                   statusShimmer 3s ease-in-out infinite;
+      }
+
+      .flight-status-badge[data-status="in-flight"] i {
+        color: rgb(16, 185, 129) !important;
+        animation: iconFloat 2s ease-in-out infinite;
+        filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.4));
+      }
+
+      .flight-status-badge[data-status="boarding"] {
+        background: linear-gradient(135deg, rgb(239, 246, 255) 0%, rgb(219, 234, 254) 100%);
+        border-color: rgb(191, 219, 254);
+        color: rgb(30, 64, 175);
+        box-shadow: 
+          0 2px 8px rgba(0, 0, 0, 0.08),
+          0 0 0 0 rgba(59, 130, 246, 0.4),
+          0 0 20px rgba(59, 130, 246, 0.2);
+        animation: statusBadgeFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                   statusPulseBlue 2.5s ease-in-out infinite 0.5s,
+                   statusShimmer 3s ease-in-out infinite;
+      }
+
+      .flight-status-badge[data-status="boarding"] i {
+        color: rgb(59, 130, 246) !important;
+        animation: iconFloat 2s ease-in-out infinite;
+        filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.4));
+      }
+
+      .flight-status-badge[data-status="scheduled"] {
+        background: linear-gradient(135deg, rgb(248, 250, 252) 0%, rgb(241, 245, 249) 100%);
+        border-color: rgb(226, 232, 240);
+        color: rgb(51, 65, 85);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        animation: statusBadgeFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .flight-status-badge[data-status="scheduled"] i {
+        color: rgb(100, 116, 139) !important;
+      }
+
+      /* Status Badge Animations */
+      @keyframes statusBadgeFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-12px) scale(0.9) rotate(-2deg);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1) rotate(0deg);
+        }
+      }
+
+      @keyframes statusPulseEmerald {
+        0%, 100% {
+          box-shadow: 
+            0 2px 8px rgba(0, 0, 0, 0.08),
+            0 0 0 0 rgba(16, 185, 129, 0.4),
+            0 0 20px rgba(16, 185, 129, 0.2);
+        }
+        50% {
+          box-shadow: 
+            0 2px 8px rgba(0, 0, 0, 0.08),
+            0 0 0 8px rgba(16, 185, 129, 0),
+            0 0 30px rgba(16, 185, 129, 0.4);
+        }
+      }
+
+      @keyframes statusPulseBlue {
+        0%, 100% {
+          box-shadow: 
+            0 2px 8px rgba(0, 0, 0, 0.08),
+            0 0 0 0 rgba(59, 130, 246, 0.4),
+            0 0 20px rgba(59, 130, 246, 0.2);
+        }
+        50% {
+          box-shadow: 
+            0 2px 8px rgba(0, 0, 0, 0.08),
+            0 0 0 8px rgba(59, 130, 246, 0),
+            0 0 30px rgba(59, 130, 246, 0.4);
+        }
+      }
+
+      @keyframes statusShimmer {
+        0% {
+          background-position: -200% center;
+        }
+        100% {
+          background-position: 200% center;
+        }
+      }
+
+      .flight-status-badge[data-status="in-flight"]::before,
+      .flight-status-badge[data-status="boarding"]::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          transparent 100%
+        );
+        background-size: 200% 100%;
+        animation: statusShimmer 3s ease-in-out infinite;
+        pointer-events: none;
+        border-radius: inherit;
+      }
+
+      @keyframes iconFloat {
+        0%, 100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-2px) rotate(5deg);
+        }
+      }
+
+      /* Status Badge Pulse Animation */
+      .status-badge-pulse {
+        position: relative;
+      }
+
+      /* Pulse animation for in-flight (emerald) */
+      .status-badge-pulse[data-status="in-flight"] {
+        animation: statusPulseEmerald 2.5s ease-in-out infinite;
+      }
+
+      @keyframes statusPulseEmerald {
+        0%, 100% {
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(16, 185, 129, 0.5);
+        }
+        50% {
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 6px rgba(16, 185, 129, 0);
+        }
+      }
+
+      /* Pulse animation for boarding (blue) */
+      .status-badge-pulse[data-status="boarding"] {
+        animation: statusPulseBlue 2.5s ease-in-out infinite;
+      }
+
+      @keyframes statusPulseBlue {
+        0%, 100% {
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(59, 130, 246, 0.5);
+        }
+        50% {
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 6px rgba(59, 130, 246, 0);
+        }
+      }
+
+      /* Flight Alert - Enhanced UX with animations */
+      .flight-alert-container {
+        animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Progress Bar - Vibrant and Lively */
+      [class*="flight-progress-bar-"],
+      [class*="modal-progress-bar-"] {
+        will-change: width;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: linear-gradient(90deg, 
+          rgb(34, 197, 94) 0%, 
+          rgb(22, 163, 74) 50%,
+          rgb(16, 185, 129) 100%) !important;
+        box-shadow: 
+          0 0 12px rgba(34, 197, 94, 0.6),
+          0 0 24px rgba(34, 197, 94, 0.4),
+          0 0 32px rgba(16, 185, 129, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        position: absolute !important;
+        height: 4px !important;
+        border-radius: 9999px;
+        overflow: hidden;
+        z-index: 2;
+      }
+
+      /* Shimmer animation for progress bar */
+      [class*="flight-progress-bar-"]::after,
+      [class*="modal-progress-bar-"]::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+          transparent 0%, 
+          rgba(255, 255, 255, 0.4) 50%, 
+          transparent 100%);
+        animation: shimmer 3s ease-in-out infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      [class*="flight-plane-icon-"],
+      [class*="modal-plane-icon-"] {
+        will-change: left, transform;
+        animation: planePulse 2.5s ease-in-out infinite;
+        position: absolute !important;
+        z-index: 3;
+      }
+
+      @keyframes planePulse {
+        0%, 100% {
+          transform: translateY(-50%) scale(1);
+        }
+        50% {
+          transform: translateY(-50%) scale(1.08);
+        }
+      }
+
+      [class*="flight-plane-icon-"] i,
+      [class*="modal-plane-icon-"] i {
+        transform: rotate(45deg);
+      }
+
+      [class*="flight-plane-icon-"] i,
+      [class*="modal-plane-icon-"] i {
+        transition: filter 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        color: rgb(34, 197, 94) !important;
+        stroke: rgb(34, 197, 94) !important;
+        filter: drop-shadow(0 2px 6px rgba(34, 197, 94, 0.6)) 
+                drop-shadow(0 0 12px rgba(34, 197, 94, 0.5)) 
+                drop-shadow(0 0 20px rgba(34, 197, 94, 0.3))
+                drop-shadow(0 0 30px rgba(34, 197, 94, 0.2));
+      }
+
+      /* ========================================================================
+         GLOBE ICON ANIMATION - Route Optimizer (2D Circular Rotation)
+         ======================================================================== */
+      .globe-icon-container {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .globe-icon,
+      .globe-icon svg {
+        transform-origin: center;
+        transition: none !important; /* No transition - JavaScript handles all animation */
+        will-change: transform; /* Optimize for animation */
+      }
+
+      /* Enhanced hover effect for the container */
+      article[data-feature="route-optimiser"]:hover .globe-icon-container {
+        transform: scale(1.05);
+        border-color: rgba(30, 58, 95, 0.3);
+      }
+
+      /* Icon container base styles */
+      .icon-container {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      article[data-feature]:hover .icon-container {
+        transform: scale(1.05);
+        border-color: rgba(30, 58, 95, 0.3);
+      }
+
+      /* Icon base styles */
+      .sparkles-icon,
+      .route-icon,
+      .wallet-icon,
+      .users-icon,
+      .cloud-rain-icon,
+      .plane-icon,
+      .hotel-icon {
+        transform-origin: center;
+        transition: none !important;
+        will-change: transform;
+      }
+      
+      [class*="flight-plane-icon-"] i svg,
+      [class*="modal-plane-icon-"] i svg {
+        color: rgb(34, 197, 94) !important;
+        stroke: rgb(34, 197, 94) !important;
+        fill: none !important;
+      }
+
+      /* View Details Button */
+      .flight-details-btn {
+        position: relative;
+        padding: 0.625rem 1.25rem;
+        background: var(--navy);
+        color: var(--sheet);
+        border: 1px solid var(--navy);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+        overflow: hidden;
+      }
+
+      .flight-details-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .flight-details-btn:hover::before {
+        left: 100%;
+      }
+
+      .flight-details-btn:hover {
+        background: rgba(30, 58, 95, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+      }
+
+      .flight-details-btn:active {
+        transform: translateY(0);
+      }
+
+      /* Flight Details Modal */
+      #flightDetailsModal {
+        transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+          visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      #flightDetailsModal[style*="pointer-events: auto"] {
+        opacity: 1 !important;
+      }
+
+      #flightDetailsModal > div {
+        transform: scale(0.95) translateY(20px);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        height: 90vh;
+      }
+
+      #flightDetailsModal[style*="pointer-events: auto"] > div {
+        transform: scale(1) translateY(0);
+      }
+
+      /* Modal Header - Sticky */
+      .flight-modal-header {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 50 !important;
+        background: rgba(254, 253, 249, 0.95) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-bottom: 1px solid var(--border) !important;
+        flex-shrink: 0;
+      }
+
+      /* Modal Close Button */
+      .modal-close-btn {
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+        border-radius: 0;
+        overflow: hidden;
+      }
+
+      .modal-close-btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--navy);
+        opacity: 0;
+        transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 0;
+      }
+
+      .modal-close-btn:hover {
+        border-color: var(--navy);
+      }
+
+      .modal-close-btn:hover::before {
+        opacity: 1;
+      }
+
+      .modal-close-btn:hover i {
+        color: var(--sheet) !important;
+        position: relative;
+        z-index: 1;
+      }
+
+      .modal-close-btn:hover i svg,
+      .modal-close-btn:hover i svg path {
+        color: var(--sheet) !important;
+        stroke: var(--sheet) !important;
+        fill: var(--sheet) !important;
+      }
+
+      .modal-close-btn i {
+        transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        z-index: 1;
+        color: var(--ink);
+      }
+
+      .modal-close-btn i svg,
+      .modal-close-btn i svg path {
+        transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s cubic-bezier(0.16, 1, 0.3, 1), fill 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        color: var(--ink);
+        stroke: var(--ink);
+        fill: none;
+      }
+
+      /* Modal Body - Scrollable */
+      .flight-modal-body {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      /* Modal scrollbar */
+      #flightDetailsContent {
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+      }
+
+      #flightDetailsContent::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      #flightDetailsContent::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      #flightDetailsContent::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      #flightDetailsContent::-webkit-scrollbar-thumb:hover {
+        background: var(--muted);
+      }
+
+      .trip-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .trip-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(6, 6, 6, 0.12);
+      }

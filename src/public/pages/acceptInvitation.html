@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accept Trip Invitation - TravelBuddy</title>
+    <link rel="stylesheet" href="output.css">
+    <style>
+        .invitation-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px 12px 0 0;
+            margin: -30px -30px 30px -30px;
+            text-align: center;
+        }
+        
+        .trip-details {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .detail-value {
+            color: #2d3748;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .btn-accept {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-accept:hover {
+            background: #5568d3;
+        }
+        
+        .btn-reject {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn-reject:hover {
+            background: #cbd5e0;
+        }
+        
+        .error-message {
+            background: #fed7d7;
+            border: 1px solid #fc8181;
+            color: #742a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .success-message {
+            background: #c6f6d5;
+            border: 1px solid #68d391;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .login-prompt {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .login-link {
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="invitation-container">
+        <div class="header-gradient">
+            <h1 class="text-3xl font-bold">🌍 Trip Invitation</h1>
+        </div>
+        
+        <div id="loadingSection">
+            <div class="loading-spinner"></div>
+            <p class="text-center text-gray-600">Loading invitation...</p>
+        </div>
+        
+        <div id="invitationSection" style="display: none;">
+            <p class="text-lg mb-4">You've been invited to join a trip!</p>
+            
+            <div class="trip-details">
+                <div class="detail-row">
+                    <span class="detail-label">📍 Trip Name:</span>
+                    <span class="detail-value" id="tripName"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">📅 Start Date:</span>
+                    <span class="detail-value" id="startDate"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">📅 End Date:</span>
+                    <span class="detail-value" id="endDate"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">👤 Invited By:</span>
+                    <span class="detail-value" id="inviterName"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">👥 Your Role:</span>
+                    <span class="detail-value" id="userRole"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">⏰ Expires:</span>
+                    <span class="detail-value" id="expiresAt"></span>
+                </div>
+            </div>
+            
+            <div id="tripDescription" class="mt-4 p-4 bg-gray-50 rounded-lg" style="display: none;">
+                <p class="text-sm text-gray-700" id="descriptionText"></p>
+            </div>
+            
+            <div id="loginRequired" class="info-box" style="display: none;">
+                <p>⚠️ You need to be logged in to accept this invitation.</p>
+                <div class="login-prompt">
+                    <a href="/auth" class="login-link">Log in or Sign up</a> to continue
+                </div>
+            </div>
+            
+            <div id="actionSection" style="display: none;">
+                <div class="action-buttons">
+                    <button id="acceptBtn" class="btn btn-accept">✓ Accept Invitation</button>
+                    <button id="rejectBtn" class="btn btn-reject">✕ Reject</button>
+                </div>
+            </div>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+        </div>
+        
+        <div id="errorSection" style="display: none;">
+            <div class="error-message">
+                <h3 class="font-bold mb-2">❌ Invalid Invitation</h3>
+                <p id="errorText"></p>
+            </div>
+            <div class="text-center mt-4">
+                <a href="/" class="text-blue-600 underline">Go to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        let invitationData = null;
+        
+        async function loadInvitation() {
+            if (!token) {
+                showError('No invitation token provided');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/invite/${token}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showError(data.error || 'Failed to load invitation');
+                    return;
+                }
+                
+                invitationData = data.invitation;
+                displayInvitation(invitationData);
+                
+                // Check if user is logged in
+                const authToken = localStorage.getItem('token');
+                if (authToken) {
+                    document.getElementById('actionSection').style.display = 'block';
+                } else {
+                    document.getElementById('loginRequired').style.display = 'block';
+                    
+                    // Store token for after login
+                    localStorage.setItem('pendingInvitationToken', token);
+                }
+                
+            } catch (error) {
+                console.error('Error loading invitation:', error);
+                showError('Failed to load invitation details');
+            }
+        }
+        
+        function displayInvitation(invitation) {
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('invitationSection').style.display = 'block';
+            
+            document.getElementById('tripName').textContent = invitation.trip.tripName;
+            document.getElementById('startDate').textContent = new Date(invitation.trip.startDate).toLocaleDateString();
+            document.getElementById('endDate').textContent = new Date(invitation.trip.endDate).toLocaleDateString();
+            document.getElementById('inviterName').textContent = invitation.inviter.name;
+            document.getElementById('userRole').textContent = invitation.role.charAt(0).toUpperCase() + invitation.role.slice(1);
+            document.getElementById('expiresAt').textContent = new Date(invitation.expiresAt).toLocaleString();
+            
+            if (invitation.trip.budgetTotal) {
+                document.getElementById('descriptionText').textContent = `Budget: ${invitation.trip.budgetTotal}`;
+                document.getElementById('tripDescription').style.display = 'block';
+            }
+        }
+        
+        async function acceptInvitation() {
+            const authToken = localStorage.getItem('token');
+            if (!authToken) {
+                showMessage('Please log in first', 'error');
+                return;
+            }
+            
+            try {
+                document.getElementById('acceptBtn').disabled = true;
+                document.getElementById('acceptBtn').textContent = 'Accepting...';
+                
+                const response = await fetch(`/api/invite/${token}/accept`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showMessage(data.error || 'Failed to accept invitation', 'error');
+                    document.getElementById('acceptBtn').disabled = false;
+                    document.getElementById('acceptBtn').textContent = '✓ Accept Invitation';
+                    return;
+                }
+                
+                showMessage('Invitation accepted! Redirecting to trip dashboard...', 'success');
+                
+                // Clear pending token
+                localStorage.removeItem('pendingInvitationToken');
+                
+                // Redirect to travel dashboard after 2 seconds
+                setTimeout(() => {
+                    window.location.href = `/travel_dashboard?tripName=${encodeURIComponent(data.trip.tripName)}`;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error accepting invitation:', error);
+                showMessage('Failed to accept invitation', 'error');
+                document.getElementById('acceptBtn').disabled = false;
+                document.getElementById('acceptBtn').textContent = '✓ Accept Invitation';
+            }
+        }
+        
+        async function rejectInvitation() {
+            const authToken = localStorage.getItem('token');
+            if (!authToken) {
+                showMessage('Please log in first', 'error');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to reject this invitation?')) {
+                return;
+            }
+            
+            try {
+                document.getElementById('rejectBtn').disabled = true;
+                document.getElementById('rejectBtn').textContent = 'Rejecting...';
+                
+                const response = await fetch(`/api/invite/${token}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showMessage(data.error || 'Failed to reject invitation', 'error');
+                    document.getElementById('rejectBtn').disabled = false;
+                    document.getElementById('rejectBtn').textContent = '✕ Reject';
+                    return;
+                }
+                
+                showMessage('Invitation rejected. Redirecting...', 'success');
+                
+                // Clear pending token
+                localStorage.removeItem('pendingInvitationToken');
+                
+                // Redirect to home after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/home';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error rejecting invitation:', error);
+                showMessage('Failed to reject invitation', 'error');
+                document.getElementById('rejectBtn').disabled = false;
+                document.getElementById('rejectBtn').textContent = '✕ Reject';
+            }
+        }
+        
+        function showMessage(message, type) {
+            const errorEl = document.getElementById('errorMessage');
+            const successEl = document.getElementById('successMessage');
+            
+            if (type === 'error') {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+            } else {
+                successEl.textContent = message;
+                successEl.style.display = 'block';
+                errorEl.style.display = 'none';
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('invitationSection').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'block';
+            document.getElementById('errorText').textContent = message;
+        }
+        
+        // Event listeners
+        document.getElementById('acceptBtn').addEventListener('click', acceptInvitation);
+        document.getElementById('rejectBtn').addEventListener('click', rejectInvitation);
+        
+        // Check for pending invitation after login
+        window.addEventListener('load', () => {
+            const pendingToken = localStorage.getItem('pendingInvitationToken');
+            if (pendingToken && window.location.pathname === '/acceptInvitation.html') {
+                // User just logged in, redirect back with token
+                const currentToken = urlParams.get('token');
+                if (!currentToken) {
+                    window.location.href = `/acceptInvitation.html?token=${pendingToken}`;
+                    return;
+                }
+            }
+            
+            loadInvitation();
+        });
+    </script>
+</body>
+</html>

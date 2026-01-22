@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Activity Map & Routes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Mapbox CSS/JS -->
+  <link
+    href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css"
+    rel="stylesheet"
+  />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
+
+  <style>
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .mapboxgl-popup {
+      max-width: 260px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+    }
+    body {
+      background: #0b1120;
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    #route-info {
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .activity-marker {
+      background: #22c55e;
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.8);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="max-w-6xl mx-auto py-6 px-4 flex flex-col gap-4">
+    <header class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold">Activity Map</h1>
+        <p class="text-slate-400 text-sm">
+          Click on a marker to draw a route from the city's default airport to the activity.
+        </p>
+      </div>
+      <a href="ExplorePage.html"
+         class="inline-flex items-center rounded-full bg-slate-800 px-4 py-2 text-sm hover:bg-slate-700 transition">
+        Back to activities
+      </a>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-6 min-h-[80vh]">
+      <!-- LEFT: map + favourites -->
+      <div class="flex flex-col gap-4">
+        <!-- Map card -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
+          <!-- Top controls -->
+          <div class="flex items-center justify-between px-5 py-3 border-b border-slate-800 bg-slate-900/90">
+            <button
+              id="customActivityToggle"
+              class="text-[12px] px-3 py-1.5 rounded-full border border-slate-600 text-slate-200 hover:bg-slate-800"
+            >
+              Add custom activity
+            </button>
+    
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-slate-400">Airport size:</span>
+              <select
+                id="airportSizeSelect"
+                class="rounded-md bg-slate-800 border border-slate-700 px-3 py-1.5 text-[12px] text-slate-100"
+              >
+                <option value="all">All (large + medium + small)</option>
+                <option value="large" selected>Large airports only</option>
+                <option value="medium">Medium airports only</option>
+                <option value="small">Small airports only</option>
+                <option value="heliport">Heliports only</option>
+              </select>
+            </div>
+          </div>
+    
+          <!-- Map -->
+          <div class="relative w-full h-[75vh]">
+            <div id="map" class="w-full h-full"></div>
+    
+            <button
+              id="zoomOutEarthBtn"
+              class="absolute bottom-6 right-6 z-10 px-3.5 py-1.5 rounded-full text-[11px] bg-slate-900/90 border border-slate-600 text-slate-100 shadow-lg hover:bg-slate-800"
+            >
+              Zoom out
+            </button>
+          </div>
+        </div>
+    
+        <!-- Favourites bar UNDER the map -->
+        <div
+          id="favouritesBar"
+          class="bg-slate-950/90 border border-slate-800 rounded-2xl px-4 py-3 flex flex-wrap items-center gap-2 text-xs"
+        >
+          <span class="text-slate-400 whitespace-nowrap mr-2">Favourites:</span>
+          <div
+            id="favouritesList"
+            class="flex flex-wrap items-center gap-2"
+          ></div>
+        </div>
+      </div>
+    
+      <!-- RIGHT: route details panel -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex flex-col">
+        <h2 class="text-xl font-semibold mb-3">Route details</h2>
+        <p class="text-slate-400 text-sm mb-3">
+          Select a marker on the map to see details here.
+        </p>
+        <div
+          id="route-info"
+          class="flex-1 rounded-xl bg-slate-950/80 border border-slate-800 p-4 text-sm text-slate-300 overflow-y-auto"
+        >
+          <p class="text-slate-500 text-xs">
+            Select a marker on the map, then click “Route from airport” to see distance and duration here.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+
+  <script>
+    window.MAPBOX_TOKEN = "pk.eyJ1Ijoiemh0c3AiLCJhIjoiY21rbmNud2Z5MDN1ZjNrczhibTBnaHF2NiJ9.vUd7Qd3rx7Nnk__e13tFig";
+  </script>
+  <script src="../scripts/pages/map.js"></script>
+</body>
+</html>

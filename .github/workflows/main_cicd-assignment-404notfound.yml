@@ -1,0 +1,76 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy Node.js app to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+ 
+env:
+  DATABASE_URL: ${{ vars.DATABASE_URL }}
+  PORT: ${{ vars.PORT }}
+ 
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for requesting the JWT
+      contents: read #This is required for actions/checkout
+ 
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Set up Node.js version
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24.x'
+ 
+      - name: npm install project dependencies
+        run: npm install
+
+      # - name: Generate Prisma Client
+      #   run: npx prisma generate
+ 
+      - name: Install playwright browsers
+        run: npx playwright install
+ 
+      - name: build, and test
+        run: |
+          # npm run build --if-present
+          npm run test --if-present
+ 
+      - name: Remove node_modules to reduce deployment package size
+        run: rm -rf node_modules        
+ 
+      # - name: Upload test artifacts
+      #   if: failure()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: playwright-traces
+      #     path: test-results
+ 
+      - name: Login to Azure
+        if: always()
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3B96C2EEB1394E019C096F69286D2415 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9AD4B01E4B1140A7A9126996E9DE0A19 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_571C598F12F949738561EE0D673FA6A7 }}
+          
+      - name: 'Deploy to Azure Web App'
+        if: always()
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with: 
+          app-name: 'cicd-assignment-404notfound-1'
+          slot-name: 'Production'
+          package: .
+          startup-command: 'npm install && node ./src/server.js'
+        
+
+
+
+

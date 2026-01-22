@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Analytics — Admin Dashboard — Kōsui</title>
+    <link rel="stylesheet" href="../styles/output.css" />
+    <link rel="stylesheet" href="../styles/admin.css" />
+  </head>
+  <body class="min-h-screen bg-canvas font-sans text-ink antialiased">
+    <header id="mainHeader" class="fade-in-initial border-b-2 border-ink/10">
+      <div class="flex items-baseline gap-3">
+        <p class="font-display text-2xl font-medium tracking-tight">Kōsui</p>
+      </div>
+      <nav
+        class="flex items-center justify-center gap-2 text-[0.65rem] font-medium uppercase tracking-[0.4em]"
+      >
+        <a
+          href="/home"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Home</a
+        >
+        <a
+          href="/main_dashboard"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Dashboard</a
+        >
+        <a
+          href="/admin"
+          class="px-5 py-2.5 text-ink transition-all duration-300"
+          >Admin</a
+        >
+      </nav>
+      <div class="relative">
+        <div
+          id="userChip"
+          class="flex cursor-pointer items-center gap-2.5 border-l-2 border-ink/10 pl-6"
+        >
+          <div class="text-right leading-tight">
+            <p id="userName" class="text-sm font-semibold">Admin</p>
+            <small class="text-[0.65rem] uppercase tracking-[0.3em] text-muted">
+              <span id="userTimezone">GMT+8</span>
+            </small>
+          </div>
+          <div
+            id="userAvatar"
+            class="flex h-8 w-8 items-center justify-center border-2 border-navy bg-navy font-mono text-xs font-bold text-sheet"
+          >
+            AD
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div
+      class="mx-auto max-w-7xl space-y-6 px-5 pb-8"
+      style="margin-top: clamp(5rem, 8vh, 6rem); padding-top: 1.5rem"
+    >
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <a
+            href="/admin"
+            class="inline-flex items-center gap-2 text-sm text-muted hover:text-ink transition-colors mb-2"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M10 12L6 8L10 4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Back to Admin
+          </a>
+          <h1 class="text-3xl font-semibold text-ink tracking-tight">
+            Analytics Dashboard
+          </h1>
+        </div>
+        <div class="relative">
+          <button
+            id="dateRangeDropdown"
+            class="group px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-ink bg-sheet cursor-pointer transition-all duration-200 hover:bg-ink/3 hover:border-ink/30 focus:outline-none inline-flex items-center justify-between gap-3 min-w-[160px] shadow-sm hover:shadow"
+            style="transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+          >
+            <span class="dropdown-text">Last 30 days</span>
+            <svg
+              class="dropdown-chevron w-4 h-4 text-muted transition-transform duration-200"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          <div
+            id="dateRangeMenu"
+            class="dropdown-menu absolute right-0 mt-2 bg-sheet border border-border rounded-lg z-50 pointer-events-none opacity-0 scale-95 origin-top-right"
+            style="
+              width: 180px;
+              box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                0 8px 10px -6px rgba(0, 0, 0, 0.1);
+              transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+              padding: 4px;
+            "
+          >
+            <div
+              class="dropdown-option"
+              data-value="7d"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                line-height: 120%;
+                width: 100%;
+                user-select: none;
+                min-height: 28px;
+                font-size: 14px;
+                padding-inline: 8px;
+                cursor: pointer;
+                transition: background 20ms ease-in;
+                border-radius: 6px;
+              "
+            >
+              <div style="margin-inline: 0px; min-width: 0px; flex: 1 1 auto">
+                <div
+                  style="
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  Last 7 days
+                </div>
+              </div>
+              <svg
+                class="check-icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style="
+                  width: 16px;
+                  height: 16px;
+                  flex-shrink: 0;
+                  opacity: 0;
+                  transition: opacity 0.15s ease;
+                "
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <div
+              class="dropdown-option is-selected"
+              data-value="30d"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                line-height: 120%;
+                width: 100%;
+                user-select: none;
+                min-height: 28px;
+                font-size: 14px;
+                padding-inline: 8px;
+                cursor: pointer;
+                transition: background 20ms ease-in;
+                border-radius: 6px;
+                background: rgba(55, 53, 47, 0.06);
+              "
+            >
+              <div style="margin-inline: 0px; min-width: 0px; flex: 1 1 auto">
+                <div
+                  style="
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  Last 30 days
+                </div>
+              </div>
+              <svg
+                class="check-icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style="
+                  width: 16px;
+                  height: 16px;
+                  flex-shrink: 0;
+                  opacity: 1;
+                  transition: opacity 0.15s ease;
+                "
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <div
+              class="dropdown-option"
+              data-value="90d"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                line-height: 120%;
+                width: 100%;
+                user-select: none;
+                min-height: 28px;
+                font-size: 14px;
+                padding-inline: 8px;
+                cursor: pointer;
+                transition: background 20ms ease-in;
+                border-radius: 6px;
+              "
+            >
+              <div style="margin-inline: 0px; min-width: 0px; flex: 1 1 auto">
+                <div
+                  style="
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  Last 90 days
+                </div>
+              </div>
+              <svg
+                class="check-icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style="
+                  width: 16px;
+                  height: 16px;
+                  flex-shrink: 0;
+                  opacity: 0;
+                  transition: opacity 0.15s ease;
+                "
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <div
+              class="dropdown-option"
+              data-value="365d"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                line-height: 120%;
+                width: 100%;
+                user-select: none;
+                min-height: 28px;
+                font-size: 14px;
+                padding-inline: 8px;
+                cursor: pointer;
+                transition: background 20ms ease-in;
+                border-radius: 6px;
+              "
+            >
+              <div style="margin-inline: 0px; min-width: 0px; flex: 1 1 auto">
+                <div
+                  style="
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  Last year
+                </div>
+              </div>
+              <svg
+                class="check-icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style="
+                  width: 16px;
+                  height: 16px;
+                  flex-shrink: 0;
+                  opacity: 0;
+                  transition: opacity 0.15s ease;
+                "
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <div style="position: relative; margin-top: 1px">
+              <div
+                style="
+                  position: absolute;
+                  top: -1px;
+                  inset-inline: 12px;
+                  height: 1px;
+                  background: var(--border);
+                "
+              ></div>
+            </div>
+            <div
+              class="dropdown-option"
+              data-value="all"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                line-height: 120%;
+                width: 100%;
+                user-select: none;
+                min-height: 28px;
+                font-size: 14px;
+                padding-inline: 8px;
+                cursor: pointer;
+                transition: background 20ms ease-in;
+                border-radius: 6px;
+                margin-top: 4px;
+              "
+            >
+              <div style="margin-inline: 0px; min-width: 0px; flex: 1 1 auto">
+                <div
+                  style="
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  All time
+                </div>
+              </div>
+              <svg
+                class="check-icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                style="
+                  width: 16px;
+                  height: 16px;
+                  flex-shrink: 0;
+                  opacity: 0;
+                  transition: opacity 0.15s ease;
+                "
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="statsCards"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+      ></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div
+          class="lg:col-span-2 chart-container bg-sheet border border-border rounded-xl p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div class="flex items-center justify-between mb-5">
+            <h3 class="text-base font-semibold text-ink">
+              User Growth Over Time
+            </h3>
+            <div class="flex items-center gap-2 text-xs text-muted">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <circle
+                  cx="6"
+                  cy="6"
+                  r="4"
+                  stroke="rgba(99, 102, 241, 1)"
+                  stroke-width="2"
+                  fill="rgba(99, 102, 241, 0.2)"
+                />
+              </svg>
+              <span>New Users</span>
+            </div>
+          </div>
+          <div class="relative" style="height: 280px">
+            <canvas id="userGrowthChart"></canvas>
+          </div>
+        </div>
+
+        <div
+          class="chart-container bg-sheet border border-border rounded-xl p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <h3 class="text-base font-semibold text-ink mb-5">
+            User Role Distribution
+          </h3>
+          <div class="relative" style="height: 300px">
+            <canvas id="roleDistributionChart"></canvas>
+          </div>
+        </div>
+
+        <div
+          class="chart-container bg-sheet border border-border rounded-xl p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <h3 class="text-base font-semibold text-ink mb-5">
+            Trip Creation Over Time
+          </h3>
+          <div class="relative" style="height: 300px">
+            <canvas id="tripCreationChart"></canvas>
+          </div>
+        </div>
+
+        <div
+          class="lg:col-span-2 chart-container bg-sheet border border-border rounded-xl p-6 shadow-sm transition-shadow hover:shadow-md"
+        >
+          <h3 class="text-base font-semibold text-ink mb-5">
+            Personality Distribution
+          </h3>
+          <div class="relative" style="height: 300px">
+            <canvas id="personaDistributionChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="messageContainer" class="fixed top-24 right-5 z-50 max-w-sm"></div>
+
+    <script src="../vendor/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="../scripts/admin/analytics.js"></script>
+  </body>
+</html>

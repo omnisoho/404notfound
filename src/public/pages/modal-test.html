@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Test - Budget Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 32rem;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1001;
+        }
+
+        .modal-overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Budget Planner - Direct Display</h1>
+
+        <!-- Budget Overview -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-3">Total Budget</h3>
+                <p class="text-3xl font-bold text-blue-600" id="totalBudgetDisplay">S$ 5,000</p>
+            </div>
+            <div class="bg-white rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-3">Allocated</h3>
+                <p class="text-3xl font-bold text-green-600" id="allocatedDisplay">S$ 4,750</p>
+            </div>
+            <div class="bg-white rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-3">Emergency Fund</h3>
+                <p class="text-3xl font-bold text-gray-600" id="bufferDisplay">S$ 250</p>
+            </div>
+        </div>
+
+        <!-- Budget Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Chart -->
+            <div class="bg-white rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-6">Budget Breakdown</h2>
+                <div class="chart-container">
+                    <canvas id="budgetChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="bg-white rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-6">Adjust Budget Categories</h2>
+                <div class="mb-4 text-sm text-gray-600">
+                    Adjust the percentage allocation for each category. The total must equal 100%.
+                </div>
+                <div class="space-y-4" id="budgetModalCategories">
+                    <!-- Categories will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="bg-white rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="testResults" class="space-y-2 text-sm">
+                <div id="elementsLoaded">Elements: <span class="text-red-500">Not loaded</span></div>
+                <div id="jsLoaded">JavaScript: <span class="text-red-500">Not loaded</span></div>
+                <div id="chartLoaded">Chart: <span class="text-red-500">Not loaded</span></div>
+                <div id="sliderTest">Slider interaction: <span class="text-red-500">Not tested</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Categories Modal -->
+    <div id="budgetModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold">Adjust Budget Categories</h2>
+                <button id="budgetModalClose" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+
+            <div class="mb-4 text-sm text-gray-600">
+                Adjust the percentage allocation for each category. The total must equal 100%.
+            </div>
+
+            <div class="space-y-4" id="budgetModalCategories">
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #1e3a5f;"></div>
+                            <span class="font-medium text-gray-900">Accommodation</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-900" id="modal-amount-accommodation">S$ 0</div>
+                            <div class="text-sm text-gray-500" id="modal-percentage-accommodation">30%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">0%</span>
+                        <input type="range" min="0" max="100" value="30" step="0.01" class="modal-percentage-slider flex-1" data-category="accommodation">
+                        <span class="text-xs text-gray-500">100%</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #f59e0b;"></div>
+                            <span class="font-medium text-gray-900">Food</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-900" id="modal-amount-food">S$ 0</div>
+                            <div class="text-sm text-gray-500" id="modal-percentage-food">25%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">0%</span>
+                        <input type="range" min="0" max="100" value="25" step="0.01" class="modal-percentage-slider flex-1" data-category="food">
+                        <span class="text-xs text-gray-500">100%</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #8b5cf6;"></div>
+                            <span class="font-medium text-gray-900">Shopping</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-900" id="modal-amount-shopping">S$ 0</div>
+                            <div class="text-sm text-gray-500" id="modal-percentage-shopping">15%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">0%</span>
+                        <input type="range" min="0" max="100" value="15" step="0.01" class="modal-percentage-slider flex-1" data-category="shopping">
+                        <span class="text-xs text-gray-500">100%</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #ef4444;"></div>
+                            <span class="font-medium text-gray-900">Attractions</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-900" id="modal-amount-attractions">S$ 0</div>
+                            <div class="text-sm text-gray-500" id="modal-percentage-attractions">15%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">0%</span>
+                        <input type="range" min="0" max="100" value="15" step="0.01" class="modal-percentage-slider flex-1" data-category="attractions">
+                        <span class="text-xs text-gray-500">100%</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #10b981;"></div>
+                            <span class="font-medium text-gray-900">Transport</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-900" id="modal-amount-transport">S$ 0</div>
+                            <div class="text-sm text-gray-500" id="modal-percentage-transport">10%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">0%</span>
+                        <input type="range" min="0" max="100" value="10" step="0.01" class="modal-percentage-slider flex-1" data-category="transport">
+                        <span class="text-xs text-gray-500">100%</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background-color: #6b7280;"></div>
+                            <span class="font-medium text-gray-900">Emergency Buffer</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-900" id="modal-amount-buffer">S$ 0</div>
+                            <div class="text-sm text-gray-500" id="modal-percentage-buffer">5%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">0%</span>
+                        <input type="range" min="0" max="100" value="5" step="0.01" class="modal-percentage-slider flex-1" data-category="buffer">
+                        <span class="text-xs text-gray-500">100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-4">
+                <button id="budgetModalCancel" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors">Cancel</button>
+                <button id="budgetModalSave" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const currencySymbols = {
+            SGD: 'S$',
+            USD: '$',
+            EUR: '€',
+            GBP: '£',
+            JPY: '¥',
+            AUD: 'A$',
+            CNY: '¥',
+            MYR: 'RM'
+        };
+
+        let currentCurrency = 'SGD';
+        let totalBudget = 5000;
+
+        const categories = {
+            accommodation: { slider: null, value: null, amount: null, percentage: 30, color: '#1e3a5f', label: 'Accommodation' },
+            food: { slider: null, value: null, amount: null, percentage: 25, color: '#f59e0b', label: 'Food' },
+            shopping: { slider: null, value: null, amount: null, percentage: 15, color: '#8b5cf6', label: 'Shopping' },
+            attractions: { slider: null, value: null, amount: null, percentage: 15, color: '#ef4444', label: 'Attractions' },
+            transport: { slider: null, value: null, amount: null, percentage: 10, color: '#10b981', label: 'Transport' },
+            buffer: { slider: null, value: null, amount: null, percentage: 5, color: '#6b7280', label: 'Emergency Buffer' }
+        };
+
+        function initElements() {
+            for (let key in categories) {
+                categories[key].slider = document.querySelector(`.modal-percentage-slider[data-category="${key}"]`);
+                categories[key].value = document.getElementById(`modal-percentage-${key}`);
+                categories[key].amount = document.getElementById(`modal-amount-${key}`);
+            }
+        }
+
+        function formatCurrency(amount) {
+            return `${currencySymbols[currentCurrency]} ${amount.toFixed(2)}`;
+        }
+
+        function updateDisplays() {
+            for (let key in categories) {
+                const cat = categories[key];
+                const amount = (totalBudget * cat.percentage / 100);
+                if (cat.value) cat.value.textContent = cat.percentage.toFixed(2) + '%';
+                if (cat.amount) cat.amount.textContent = formatCurrency(amount);
+                if (cat.slider) cat.slider.value = cat.percentage;
+            }
+        }
+
+        function normalizePercentages(changedKey) {
+            const total = Object.values(categories).reduce((sum, cat) => sum + cat.percentage, 0);
+
+            if (total > 100) {
+                const excess = total - 100;
+                const otherKeys = Object.keys(categories).filter(k => k !== changedKey);
+                const otherTotal = otherKeys.reduce((sum, k) => sum + categories[k].percentage, 0);
+
+                if (otherTotal > 0) {
+                    otherKeys.forEach(key => {
+                        const reduction = (categories[key].percentage / otherTotal) * excess;
+                        categories[key].percentage = Math.max(0, categories[key].percentage - reduction);
+                        categories[key].slider.value = categories[key].percentage;
+                    });
+                }
+            } else if (total < 100) {
+                const deficit = 100 - total;
+                categories.buffer.percentage = Math.min(100, categories.buffer.percentage + deficit);
+                categories.buffer.slider.value = categories.buffer.percentage;
+            }
+
+            updateDisplays();
+        }
+
+        function setupListeners() {
+            for (let key in categories) {
+                if (categories[key].slider) {
+                    categories[key].slider.addEventListener('input', function(e) {
+                        categories[key].percentage = parseFloat(e.target.value);
+                        normalizePercentages(key);
+                    });
+                }
+            }
+        }
+
+        function createChart() {
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            const chartData = {
+                labels: Object.values(categories).map(cat => cat.label),
+                datasets: [{
+                    data: Object.values(categories).map(cat => cat.percentage),
+                    backgroundColor: Object.values(categories).map(cat => cat.color),
+                    borderWidth: 1
+                }]
+            };
+
+            const chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const amount = (totalBudget * value / 100);
+                                    return `${context.label}: ${value.toFixed(1)}% (${formatCurrency(amount)})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            return chart;
+        }
+
+        function populateCategories() {
+            const container = document.getElementById('budgetModalCategories');
+            container.innerHTML = '';
+
+            Object.keys(categories).forEach(key => {
+                const cat = categories[key];
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'bg-white rounded-lg p-4 border border-gray-200';
+                categoryDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background-color: ${cat.color};"></div>
+                            <span class="font-medium text-gray-900">${cat.label}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-900" id="modal-amount-${key}">S$ 0</div>
+                            <div class="text-sm text-gray-500" id="modal-percentage-${key}">0%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">0%</span>
+                        <input type="range" min="0" max="100" value="${cat.percentage}" step="0.01" class="modal-percentage-slider flex-1" data-category="${key}">
+                        <span class="text-xs text-gray-500">100%</span>
+                    </div>
+                `;
+                container.appendChild(categoryDiv);
+            });
+        }
+
+        function updateBudgetDisplays() {
+            const allocated = totalBudget * 0.95; // 95% allocated (excluding buffer)
+            const buffer = totalBudget * 0.05; // 5% buffer
+
+            document.getElementById('totalBudgetDisplay').textContent = formatCurrency(totalBudget);
+            document.getElementById('allocatedDisplay').textContent = formatCurrency(allocated);
+            document.getElementById('bufferDisplay').textContent = formatCurrency(buffer);
+        }
+
+        function showModal() {
+            const modal = document.getElementById('budgetModal');
+            modal.classList.add('show');
+            initElements();
+            updateDisplays();
+            setupListeners();
+        }
+
+        function hideModal() {
+            const modal = document.getElementById('budgetModal');
+            modal.classList.remove('show');
+        }
+
+        // Initialize everything on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Populate categories directly on the page
+            populateCategories();
+
+            // Initialize elements and displays
+            initElements();
+            updateDisplays();
+            updateBudgetDisplays();
+            setupListeners();
+
+            // Create the chart
+            const chart = createChart();
+
+            // Update chart when sliders change
+            Object.keys(categories).forEach(key => {
+                if (categories[key].slider) {
+                    categories[key].slider.addEventListener('input', () => {
+                        chart.data.datasets[0].data = Object.values(categories).map(cat => cat.percentage);
+                        chart.update();
+                        updateBudgetDisplays();
+                    });
+                }
+            });
+
+            // Test results
+            const elementsLoaded = document.getElementById('elementsLoaded');
+            elementsLoaded.innerHTML = 'Elements: <span class="text-green-500">Loaded ✓</span>';
+
+            const jsLoaded = document.getElementById('jsLoaded');
+            jsLoaded.innerHTML = 'JavaScript: <span class="text-green-500">Loaded ✓</span>';
+
+            const chartLoaded = document.getElementById('chartLoaded');
+            chartLoaded.innerHTML = 'Chart: <span class="text-green-500">Loaded ✓</span>';
+
+            const sliderTest = document.getElementById('sliderTest');
+            setTimeout(() => {
+                const sliders = document.querySelectorAll('.modal-percentage-slider');
+                if (sliders.length > 0) {
+                    sliderTest.innerHTML = 'Slider interaction: <span class="text-green-500">Ready ✓</span>';
+                }
+            }, 1000);
+
+            // Modal event listeners (for testing modal functionality)
+            document.getElementById('budgetModalClose').addEventListener('click', hideModal);
+            document.getElementById('budgetModalCancel').addEventListener('click', hideModal);
+            document.getElementById('budgetModalSave').addEventListener('click', hideModal);
+        });
+    </script>
+</body>
+</html>

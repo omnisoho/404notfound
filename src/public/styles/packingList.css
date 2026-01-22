@@ -1,0 +1,38 @@
+table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+.popup {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+}
+
+.popup-content {
+  background: white;
+  width: 350px;
+  padding: 20px;
+  margin: 120px auto;
+  border-radius: 10px;
+}
+.trip-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+.trip-item:hover {
+  background: #f0f0f0;
+}
+.selected {
+  background: #d0ebff !important;
+}

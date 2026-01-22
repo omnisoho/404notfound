@@ -1,0 +1,466 @@
+/*
+  Warnings:
+
+  - You are about to drop the `Person` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `Something` table. If the table is not empty, all the data it contains will be lost.
+
+*/
+-- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('user', 'admin', 'premium');
+
+-- CreateEnum
+CREATE TYPE "TripRole" AS ENUM ('owner', 'editor', 'viewer');
+
+-- CreateEnum
+CREATE TYPE "ActivityType" AS ENUM ('food', 'shopping', 'nature', 'culture', 'event', 'other');
+
+-- CreateEnum
+CREATE TYPE "TripPace" AS ENUM ('slow', 'balanced', 'packed');
+
+-- CreateEnum
+CREATE TYPE "FlightStatus" AS ENUM ('scheduled', 'delayed', 'departed', 'arrived', 'cancelled');
+
+-- CreateEnum
+CREATE TYPE "CategoryName" AS ENUM ('food', 'shopping', 'transport', 'stay', 'activities', 'other');
+
+-- CreateEnum
+CREATE TYPE "TransportMode" AS ENUM ('train', 'bus', 'taxi', 'subway', 'walk', 'flight');
+
+-- CreateEnum
+CREATE TYPE "ReminderStatus" AS ENUM ('pending', 'sent');
+
+-- DropTable
+DROP TABLE "Person";
+
+-- DropTable
+DROP TABLE "Something";
+
+-- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "userRole" "UserRole" NOT NULL DEFAULT 'user',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PersonalityProfile" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "adventurerScore" INTEGER NOT NULL,
+    "foodieScore" INTEGER NOT NULL,
+    "cultureScore" INTEGER NOT NULL,
+    "nightOwlScore" INTEGER NOT NULL,
+    "natureScore" INTEGER NOT NULL,
+    "shopaholicScore" INTEGER NOT NULL,
+    "budgetScore" INTEGER NOT NULL,
+    "preferredTripPace" "TripPace" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PersonalityProfile_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Trip" (
+    "id" SERIAL NOT NULL,
+    "tripName" TEXT NOT NULL,
+    "createdBy" INTEGER NOT NULL,
+    "startDate" TIMESTAMP(3) NOT NULL,
+    "endDate" TIMESTAMP(3) NOT NULL,
+    "budgetTotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "currency" TEXT NOT NULL DEFAULT 'SGD',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Trip_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TripDestination" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "country" TEXT NOT NULL,
+    "city" TEXT NOT NULL,
+    "orderIndex" INTEGER NOT NULL,
+
+    CONSTRAINT "TripDestination_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TripMember" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "role" "TripRole" NOT NULL,
+
+    CONSTRAINT "TripMember_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ItineraryDay" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "notes" TEXT,
+
+    CONSTRAINT "ItineraryDay_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Activity" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "type" "ActivityType" NOT NULL,
+    "latitude" DOUBLE PRECISION,
+    "longitude" DOUBLE PRECISION,
+    "city" TEXT,
+    "country" TEXT,
+    "priceEstimate" DOUBLE PRECISION,
+    "indoor" BOOLEAN NOT NULL DEFAULT false,
+    "rating" DOUBLE PRECISION,
+    "description" TEXT,
+
+    CONSTRAINT "Activity_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ItineraryActivity" (
+    "id" SERIAL NOT NULL,
+    "dayId" INTEGER NOT NULL,
+    "activityId" INTEGER NOT NULL,
+    "startTime" TIMESTAMP(3),
+    "endTime" TIMESTAMP(3),
+    "cost" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "customNotes" TEXT,
+
+    CONSTRAINT "ItineraryActivity_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ActivityCategory" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "ActivityCategory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ActivityCategoryMap" (
+    "activityId" INTEGER NOT NULL,
+    "categoryId" INTEGER NOT NULL,
+
+    CONSTRAINT "ActivityCategoryMap_pkey" PRIMARY KEY ("activityId","categoryId")
+);
+
+-- CreateTable
+CREATE TABLE "BudgetCategory" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "categoryName" "CategoryName" NOT NULL,
+    "allocatedAmount" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "BudgetCategory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Expense" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "categoryId" INTEGER NOT NULL,
+    "description" TEXT,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Expense_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PackingItem" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
+    "isChecked" BOOLEAN NOT NULL DEFAULT false,
+    "autoGenerated" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "PackingItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Flight" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "airline" TEXT NOT NULL,
+    "flightNumber" TEXT NOT NULL,
+    "originAirport" TEXT NOT NULL,
+    "destinationAirport" TEXT NOT NULL,
+    "departureTime" TIMESTAMP(3) NOT NULL,
+    "arrivalTime" TIMESTAMP(3) NOT NULL,
+    "status" "FlightStatus" NOT NULL DEFAULT 'scheduled',
+    "apiLastSynced" TIMESTAMP(3),
+
+    CONSTRAINT "Flight_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Hotel" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "address" TEXT,
+    "city" TEXT,
+    "country" TEXT,
+    "rating" DOUBLE PRECISION,
+
+    CONSTRAINT "Hotel_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "HotelBooking" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "hotelId" INTEGER NOT NULL,
+    "checkIn" TIMESTAMP(3) NOT NULL,
+    "checkOut" TIMESTAMP(3) NOT NULL,
+    "roomType" TEXT,
+    "pricePerNight" DOUBLE PRECISION,
+    "totalCost" DOUBLE PRECISION,
+
+    CONSTRAINT "HotelBooking_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AvailabilitySlot" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "startTime" TIMESTAMP(3) NOT NULL,
+    "endTime" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AvailabilitySlot_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TripDiary" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "dayId" INTEGER,
+    "content" TEXT,
+    "mood" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "TripDiary_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DiaryPhoto" (
+    "id" SERIAL NOT NULL,
+    "entryId" INTEGER NOT NULL,
+    "imageUrl" TEXT NOT NULL,
+    "latitude" DOUBLE PRECISION,
+    "longitude" DOUBLE PRECISION,
+    "uploadedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "DiaryPhoto_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Vote" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "activityId" INTEGER NOT NULL,
+    "vote" BOOLEAN NOT NULL,
+
+    CONSTRAINT "Vote_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Reminder" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "message" TEXT NOT NULL,
+    "remindAt" TIMESTAMP(3) NOT NULL,
+    "status" "ReminderStatus" NOT NULL DEFAULT 'pending',
+
+    CONSTRAINT "Reminder_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Notification" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "title" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SavedPlace" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "activityId" INTEGER NOT NULL,
+    "addedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "SavedPlace_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AIRecommendationLog" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "tripId" INTEGER,
+    "requestData" JSONB NOT NULL,
+    "responseData" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AIRecommendationLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AnalyticsEvent" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER,
+    "tripId" INTEGER,
+    "eventType" TEXT NOT NULL,
+    "eventData" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AnalyticsEvent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TransportMethod" (
+    "id" SERIAL NOT NULL,
+    "tripId" INTEGER NOT NULL,
+    "mode" "TransportMode" NOT NULL,
+    "originActivityId" INTEGER,
+    "destinationActivityId" INTEGER,
+    "cost" DOUBLE PRECISION,
+    "durationMinutes" INTEGER,
+
+    CONSTRAINT "TransportMethod_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PersonalityProfile_userId_key" ON "PersonalityProfile"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ActivityCategory_name_key" ON "ActivityCategory"("name");
+
+-- AddForeignKey
+ALTER TABLE "PersonalityProfile" ADD CONSTRAINT "PersonalityProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Trip" ADD CONSTRAINT "Trip_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TripDestination" ADD CONSTRAINT "TripDestination_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TripMember" ADD CONSTRAINT "TripMember_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TripMember" ADD CONSTRAINT "TripMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ItineraryDay" ADD CONSTRAINT "ItineraryDay_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ItineraryActivity" ADD CONSTRAINT "ItineraryActivity_dayId_fkey" FOREIGN KEY ("dayId") REFERENCES "ItineraryDay"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ItineraryActivity" ADD CONSTRAINT "ItineraryActivity_activityId_fkey" FOREIGN KEY ("activityId") REFERENCES "Activity"("id") ON DELETE NO ACTION ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ActivityCategoryMap" ADD CONSTRAINT "ActivityCategoryMap_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "ActivityCategory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ActivityCategoryMap" ADD CONSTRAINT "ActivityCategoryMap_activityId_fkey" FOREIGN KEY ("activityId") REFERENCES "Activity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BudgetCategory" ADD CONSTRAINT "BudgetCategory_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Expense" ADD CONSTRAINT "Expense_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Expense" ADD CONSTRAINT "Expense_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "BudgetCategory"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PackingItem" ADD CONSTRAINT "PackingItem_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Flight" ADD CONSTRAINT "Flight_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HotelBooking" ADD CONSTRAINT "HotelBooking_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "HotelBooking" ADD CONSTRAINT "HotelBooking_hotelId_fkey" FOREIGN KEY ("hotelId") REFERENCES "Hotel"("id") ON DELETE NO ACTION ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AvailabilitySlot" ADD CONSTRAINT "AvailabilitySlot_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AvailabilitySlot" ADD CONSTRAINT "AvailabilitySlot_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TripDiary" ADD CONSTRAINT "TripDiary_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TripDiary" ADD CONSTRAINT "TripDiary_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DiaryPhoto" ADD CONSTRAINT "DiaryPhoto_entryId_fkey" FOREIGN KEY ("entryId") REFERENCES "TripDiary"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Vote" ADD CONSTRAINT "Vote_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Vote" ADD CONSTRAINT "Vote_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Vote" ADD CONSTRAINT "Vote_activityId_fkey" FOREIGN KEY ("activityId") REFERENCES "Activity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Reminder" ADD CONSTRAINT "Reminder_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Reminder" ADD CONSTRAINT "Reminder_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SavedPlace" ADD CONSTRAINT "SavedPlace_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SavedPlace" ADD CONSTRAINT "SavedPlace_activityId_fkey" FOREIGN KEY ("activityId") REFERENCES "Activity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AIRecommendationLog" ADD CONSTRAINT "AIRecommendationLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AIRecommendationLog" ADD CONSTRAINT "AIRecommendationLog_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AnalyticsEvent" ADD CONSTRAINT "AnalyticsEvent_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AnalyticsEvent" ADD CONSTRAINT "AnalyticsEvent_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TransportMethod" ADD CONSTRAINT "TransportMethod_tripId_fkey" FOREIGN KEY ("tripId") REFERENCES "Trip"("id") ON DELETE CASCADE ON UPDATE CASCADE;

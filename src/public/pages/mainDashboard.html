@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Kōsui</title>
+  <link rel="stylesheet" href="../styles/output.css">
+  <link rel="stylesheet" href="../styles/dashboard.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="../vendor/lucide.min.js"></script>
+</head>
+<body class="min-h-screen bg-canvas">
+  <!-- Header -->
+  <header
+    id="mainHeader"
+    class="fade-in-initial border-b-2 border-ink/10"
+  >
+    <div class="flex items-baseline gap-3">
+      <a href="/home" class="font-display text-2xl font-medium tracking-tight">Kōsui</a>
+    </div>
+    <nav
+      class="flex items-center justify-center gap-2 text-[0.65rem] font-medium uppercase tracking-[0.4em]"
+    >
+      <a
+        href="/home"
+        class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+        >Home</a
+      >
+      <a
+        href="/dashboard"
+        class="px-5 py-2.5 text-ink transition-all duration-300"
+        >Dashboard</a
+      >
+      <a
+        href="/home#trips"
+        class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+        >Trips</a
+      >
+      <a
+        href="/home#tools"
+        class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+        >Tools</a
+      >
+    </nav>
+    <div class="relative">
+      <div
+        id="userChip"
+        class="flex cursor-pointer items-center gap-2.5 border-l-2 border-ink/10 pl-6"
+      >
+        <div class="text-right leading-tight">
+          <p id="userName" class="text-sm font-semibold">Explorer</p>
+          <small
+            class="text-[0.65rem] uppercase tracking-[0.3em] text-muted"
+          >
+            <span id="userTimezone">GMT+8</span>
+          </small>
+        </div>
+        <div
+          id="userAvatar"
+          class="flex h-8 w-8 items-center justify-center border-2 border-navy bg-navy font-mono text-xs font-bold text-sheet"
+        >
+          EX
+        </div>
+      </div>
+
+      <!-- User Dropdown Menu -->
+      <div
+        id="userDropdown"
+        class="invisible absolute right-0 top-full z-[100] mt-3 opacity-0"
+      >
+        <div>
+          <div
+            class="dropdown-item"
+            data-action="profile"
+          >
+            <i data-lucide="user"></i>
+            <span>Profile</span>
+          </div>
+          <div
+            class="dropdown-item"
+            data-action="settings"
+          >
+            <i data-lucide="settings"></i>
+            <span>Settings</span>
+          </div>
+          <div
+            id="adminDropdownItem"
+            class="dropdown-item hidden"
+            data-action="admin"
+          >
+            <i data-lucide="shield"></i>
+            <span>Admin</span>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div>
+          <div
+            class="dropdown-item"
+            data-action="logout"
+          >
+            <i data-lucide="log-out"></i>
+            <span>Sign Out</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dropdown backdrop -->
+  <div id="userDropdownBackdrop" class="fixed inset-0 z-50 hidden"></div>
+
+  <!-- Dashboard Layout: Sidebar + Main Content -->
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar" id="dashboardSidebar">
+      <!-- Search -->
+      <div class="sidebar-search">
+        <input 
+          type="text" 
+          id="tripSearch" 
+          placeholder="search" 
+          class="sidebar-search-input"
+        />
+      </div>
+
+      <!-- TRIPS Section -->
+      <div id="myTripsSection" class="sidebar-trips-section">
+        <div class="sidebar-trips-header">
+          <span class="sidebar-trips-label">TRIPS</span>
+          <div class="sidebar-trips-actions">
+            <button id="createTripBtn" class="sidebar-add-btn" aria-label="Create new trip">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+            <span id="myTripsCount" class="sidebar-count-badge">0</span>
+          </div>
+        </div>
+        <div id="myTripsList" class="sidebar-trip-list">
+          <!-- My trips will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Invited Trips Section -->
+      <div id="invitedTripsSection" class="sidebar-trips-section">
+        <div class="sidebar-trips-header">
+          <span class="sidebar-trips-label">INVITED</span>
+          <span id="invitedTripsCount" class="sidebar-count-badge">0</span>
+        </div>
+        <div id="invitedTripsList" class="sidebar-trip-list">
+          <!-- Invited trips will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="sidebarEmptyState" class="sidebar-empty-state hidden">
+        <p class="text-sm text-muted text-center">No trips yet</p>
+        <button class="create-trip-trigger mt-3 text-sm text-navy hover:underline">
+          Create your first trip
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="dashboard-main">
+      <!-- Welcome/Empty State -->
+      <div id="welcomeView" class="dashboard-welcome">
+        <div class="welcome-content">
+          <i data-lucide="map" class="w-16 h-16 text-muted mb-4"></i>
+          <h1 class="welcome-title">Welcome to Your Dashboard</h1>
+          <p class="welcome-description">Select a trip from the sidebar to view details, or create a new trip to get started.</p>
+          <button class="create-trip-trigger welcome-create-btn">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+            <span>Create Your First Trip</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Trip Detail View -->
+      <div id="tripDetailView" class="dashboard-trip-detail hidden">
+        <div class="trip-detail-header">
+          <button id="backToOverview" class="back-btn">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back</span>
+          </button>
+          <div class="flex-1">
+            <h1 id="tripDetailName" class="trip-detail-title">Trip Name</h1>
+            <div class="trip-detail-meta">
+              <span id="tripDetailDates" class="text-sm text-muted"></span>
+              <span class="trip-detail-separator">•</span>
+              <span id="tripDetailDestinations" class="text-sm text-muted"></span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="editTripBtn" class="trip-detail-btn secondary">
+              <i data-lucide="edit" class="w-4 h-4"></i>
+              <span>Edit</span>
+            </button>
+            <a id="openTripBtn" href="#" class="trip-detail-btn primary">
+              <i data-lucide="external-link" class="w-4 h-4"></i>
+              <span>Open</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="trip-detail-content">
+          <!-- Trip Status -->
+          <div class="trip-detail-card">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="trip-detail-card-title">Trip Status</h3>
+              <span id="tripDetailStatus" class="status-badge"></span>
+            </div>
+            <div id="tripProgressBar" class="trip-progress-bar"></div>
+          </div>
+
+          <!-- Trip Overview -->
+          <div class="trip-detail-grid">
+            <div class="trip-detail-card">
+              <div class="trip-stat">
+                <i data-lucide="calendar" class="trip-stat-icon"></i>
+                <div>
+                  <p class="trip-stat-label">Duration</p>
+                  <p id="tripDetailDuration" class="trip-stat-value">—</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="trip-detail-card">
+              <div class="trip-stat">
+                <i data-lucide="wallet" class="trip-stat-icon"></i>
+                <div>
+                  <p class="trip-stat-label">Budget</p>
+                  <p id="tripDetailBudget" class="trip-stat-value">—</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="trip-detail-card">
+              <div class="trip-stat">
+                <i data-lucide="map-pin" class="trip-stat-icon"></i>
+                <div>
+                  <p class="trip-stat-label">Destinations</p>
+                  <p id="tripDetailDestCount" class="trip-stat-value">—</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="trip-detail-card">
+              <div class="trip-stat">
+                <i data-lucide="users" class="trip-stat-icon"></i>
+                <div>
+                  <p class="trip-stat-label">Members</p>
+                  <p id="tripDetailMembers" class="trip-stat-value">—</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Destinations List -->
+          <div class="trip-detail-card">
+            <h3 class="trip-detail-card-title mb-4">Destinations</h3>
+            <div id="tripDetailDestinationsList" class="destinations-list">
+              <!-- Destinations will be inserted here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create Trip Modal -->
+  <div id="createTripModal" class="modal">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 class="modal-title">Create New Trip</h2>
+        <button id="closeModal" class="modal-close-btn" aria-label="Close modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      
+      <form id="createTripForm" class="modal-body">
+        <!-- Error Display -->
+        <div id="errorAlert" class="error-alert hidden">
+          <div class="flex items-start">
+            <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0"></i>
+            <div class="flex-1">
+              <h3 class="text-sm font-semibold text-red-900 mb-1">Validation Error</h3>
+              <ul id="errorList" class="text-sm text-red-800 space-y-1"></ul>
+            </div>
+            <button type="button" id="closeError" class="text-red-600 hover:text-red-800 ml-3">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="tripName" class="form-label">
+            Trip Name
+            <span class="required-text">(required)</span>
+          </label>
+          <input type="text" id="tripName" name="tripName" required class="form-input" placeholder="e.g., Summer Europe Adventure">
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="startDate" class="form-label">
+              Start Date
+              <span class="required-text">(required)</span>
+            </label>
+            <div class="relative" id="startDateInputContainer">
+              <input
+                type="text"
+                id="startDate"
+                name="startDate"
+                readonly
+                required
+                placeholder="Select date"
+                class="form-input cursor-pointer"
+              />
+              <div
+                id="startDatePicker"
+                class="border border-border bg-sheet shadow-lg date-picker-hidden"
+                style="position: fixed; z-index: 10000;"
+              >
+                <div class="date-picker-content">
+                  <div class="flex items-center justify-between mb-3">
+                    <button
+                      type="button"
+                      id="startDatePickerPrevMonth"
+                      class="p-2 hover:bg-canvas transition"
+                    >
+                      <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+                    <h3
+                      id="startDatePickerMonthYear"
+                      class="text-sm font-semibold text-ink"
+                    ></h3>
+                    <button
+                      type="button"
+                      id="startDatePickerNextMonth"
+                      class="p-2 hover:bg-canvas transition"
+                    >
+                      <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-7 gap-1 mb-2" style="display: grid; grid-template-columns: repeat(7, 1fr);">
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">S</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">M</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">T</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">W</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">T</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">F</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">S</div>
+                  </div>
+                  <div id="startDatePickerDays" class="grid grid-cols-7 gap-1"></div>
+                </div>
+                <div class="border-t border-border" id="startDatePickerButtons" style="padding: 0.75rem !important; box-sizing: border-box !important;">
+                  <div class="flex gap-2" style="gap: 0.5rem !important;">
+                    <button
+                      type="button"
+                      id="startDateToday"
+                      class="flex-1 border border-border bg-sheet px-3 py-2 text-sm font-semibold text-ink transition hover:bg-navy hover:text-sheet"
+                      style="transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important; padding: 0.5rem 0.75rem !important;"
+                    >
+                      Today
+                    </button>
+                    <button
+                      type="button"
+                      id="startDateTomorrow"
+                      class="flex-1 border border-border bg-sheet px-3 py-2 text-sm font-semibold text-ink transition hover:bg-navy hover:text-sheet"
+                      style="transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important; padding: 0.5rem 0.75rem !important;"
+                    >
+                      Tomorrow
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="endDate" class="form-label">
+              End Date
+              <span class="required-text">(required)</span>
+            </label>
+            <div class="relative" id="endDateInputContainer">
+              <input
+                type="text"
+                id="endDate"
+                name="endDate"
+                readonly
+                required
+                placeholder="Select date"
+                class="form-input cursor-pointer"
+              />
+              <div
+                id="endDatePicker"
+                class="border border-border bg-sheet shadow-lg date-picker-hidden"
+                style="position: fixed; z-index: 10000;"
+              >
+                <div class="date-picker-content">
+                  <div class="flex items-center justify-between mb-3">
+                    <button
+                      type="button"
+                      id="endDatePickerPrevMonth"
+                      class="p-2 hover:bg-canvas transition"
+                    >
+                      <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+                    <h3
+                      id="endDatePickerMonthYear"
+                      class="text-sm font-semibold text-ink"
+                    ></h3>
+                    <button
+                      type="button"
+                      id="endDatePickerNextMonth"
+                      class="p-2 hover:bg-canvas transition"
+                    >
+                      <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-7 gap-1 mb-2" style="display: grid; grid-template-columns: repeat(7, 1fr);">
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">S</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">M</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">T</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">W</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">T</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">F</div>
+                    <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">S</div>
+                  </div>
+                  <div id="endDatePickerDays" class="grid grid-cols-7 gap-1"></div>
+                </div>
+                <div class="border-t border-border" id="endDatePickerButtons" style="padding: 0.75rem !important; box-sizing: border-box !important;">
+                  <div class="flex gap-2" style="gap: 0.5rem !important;">
+                    <button
+                      type="button"
+                      id="endDateToday"
+                      class="flex-1 border border-border bg-sheet px-3 py-2 text-sm font-semibold text-ink transition hover:bg-navy hover:text-sheet"
+                      style="transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important; padding: 0.5rem 0.75rem !important;"
+                    >
+                      Today
+                    </button>
+                    <button
+                      type="button"
+                      id="endDateTomorrow"
+                      class="flex-1 border border-border bg-sheet px-3 py-2 text-sm font-semibold text-ink transition hover:bg-navy hover:text-sheet"
+                      style="transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important; padding: 0.5rem 0.75rem !important;"
+                    >
+                      Tomorrow
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="currency" class="form-label">
+              Trip Currency
+            </label>
+            <div class="custom-dropdown" data-select-id="currency">
+              <button
+                type="button"
+                class="custom-dropdown-button"
+                aria-label="Select currency"
+              >
+                <span class="dropdown-value">USD ($)</span>
+                <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+              </button>
+              <div class="custom-dropdown-menu">
+                <div
+                  class="custom-dropdown-option selected"
+                  data-value="USD"
+                >
+                  USD ($)
+                </div>
+                <div class="custom-dropdown-option" data-value="EUR">
+                  EUR (€)
+                </div>
+                <div class="custom-dropdown-option" data-value="GBP">
+                  GBP (£)
+                </div>
+                <div class="custom-dropdown-option" data-value="SGD">
+                  SGD (S$)
+                </div>
+                <div class="custom-dropdown-option" data-value="JPY">
+                  JPY (¥)
+                </div>
+              </div>
+              <select id="currency" name="currency" class="form-select">
+                <option value="USD" selected>USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="SGD">SGD (S$)</option>
+                <option value="JPY">JPY (¥)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="budgetTotal" class="form-label">Budget</label>
+            <input type="text" id="budgetTotal" name="budgetTotal" inputmode="decimal" class="form-input budget-input" placeholder="0.00">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">
+            Destinations
+            <span class="required-text">(required)</span>
+          </label>
+          <div id="destinationsContainer" class="destinations-container">
+            <div class="destination-entry">
+              <input type="text" placeholder="Country" class="destination-country form-input" required>
+              <input type="text" placeholder="City" class="destination-city form-input" required>
+              <button type="button" class="remove-destination hidden">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+          <button type="button" id="addDestination" class="add-destination-btn">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Add Another Destination</span>
+          </button>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="modal-btn secondary close-modal-trigger">Cancel</button>
+          <button type="submit" class="modal-btn primary">Create Trip</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../scripts/pages/mainDashboard.js"></script>
+</body>
+</html>

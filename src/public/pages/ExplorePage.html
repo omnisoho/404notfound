@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['ui-rounded','system-ui','-apple-system','BlinkMacSystemFont','Segoe UI','sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <title>Kōsui — Travel Planner</title>
+  <link rel="stylesheet" href="../styles/explorepage.css" />
+</head>
+
+<body class="min-h-screen font-sans bg-black p-6 light-theme">
+  <!-- FULLSCREEN LOADER -->
+  <div id="appLoader" class="fixed inset-0 z-40 flex items-center justify-center bg-black">
+    <div class="flex flex-col items-center gap-3">
+      <div class="h-10 w-10 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent"></div>
+      <p class="text-xs uppercase tracking-[0.2em] text-slate-400">
+        Preparing recommendations...
+      </p>
+    </div>
+  </div>
+
+  <!-- APP SHELL -->
+  <div id="appShell" class="max-w-7xl mx-auto shell rounded-3xl border bg-black shadow-[0_24px_70px_rgba(0,0,0,1)] backdrop-blur-3xl p-6 opacity-0 pointer-events-none transition-opacity duration-300">
+    
+    <!-- HEADER -->
+    <header class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-slate-50">Kōsui</h1>
+        <p class="text-sm text-slate-400">Restaurant &amp; Attraction recommender</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex flex-col items-end gap-1">
+          <div id="personalityContainer" class="flex flex-wrap gap-1.5 text-xs"></div>
+        </div>
+        <button id="themeToggle">Dark Theme</button>
+      </div>
+    </header>
+    
+    <div class="grid grid-cols-12 gap-6">
+      <!-- SIDEBAR -->
+      <aside class="col-span-3 sidebar rounded-3xl border shadow-xl p-4 sticky top-6 h-fit space-y-4">
+        <!-- Price preference -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.16em] text-slate-500 mb-1">
+            Price preference
+          </label>
+          <div class="mt-2 flex flex-wrap gap-1.5 text-xs">
+            <button data-price="cheap" class="priceBtn chip">Cheap</button>
+            <button data-price="balanced" class="priceBtn chip chip-active">Balanced</button>
+            <button data-price="expensive" class="priceBtn chip">Expensive</button>
+          </div>
+        </div>
+
+        <!-- Max price (single slider) -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.16em] text-slate-500 mb-1">
+            Max price (estimate)
+          </label>
+          <div class="mt-2 flex items-center gap-2 text-xs">
+            <input 
+              id="maxPrice" 
+              type="range" 
+              min="0" 
+              max="2000" 
+              step="25" 
+              value="2000"
+              class="w-full"
+            />
+            <span id="maxPriceLabel" class="text-slate-300 whitespace-nowrap">
+              Any
+            </span>
+          </div>
+        </div>
+
+        <!-- Indoor / outdoor -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.16em] text-slate-500 mb-1">
+            Indoor / Outdoor
+          </label>
+          <div class="mt-2 flex flex-wrap gap-1.5 text-xs">
+            <button data-indoor="any" class="indoorBtn chip chip-active">Any</button>
+            <button data-indoor="indoor" class="indoorBtn chip">Indoor</button>
+            <button data-indoor="outdoor" class="indoorBtn chip">Outdoor</button>
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.16em] text-slate-500 mb-1">
+            Activity type
+          </label>
+          <select id="typeFilter" class="w-full mt-1 rounded-md">
+            <option value="any">any</option>
+            <option value="food">food</option>
+            <option value="culture">culture</option>
+            <option value="nature">nature</option>
+            <option value="shopping">shopping</option>
+            <option value="event">event</option>
+          </select>
+        </div>
+
+        <!-- Region -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.16em] text-slate-500 mb-1">
+            Country / Region
+          </label>
+          <select id="region" class="w-full mt-1 rounded-md"></select>
+        </div>
+
+        <!-- Tags -->
+        <div>
+          <label class="block text-[10px] uppercase tracking-[0.16em] text-slate-500 mb-1">
+            City tags
+          </label>
+          <div id="tagsContainer" class="mt-2 flex flex-wrap gap-1.5"></div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="col-span-9 space-y-6">
+        <div class="panel rounded-3xl border shadow-xl p-4 flex items-center gap-4">
+          <input id="searchBox" placeholder="Search by name, city, country, or type..." />
+        </div>
+
+        <section>
+          <h2 class="text-sm font-medium text-slate-300 tracking-[0.16em] uppercase mb-4">Top picks for you</h2>
+          <div id="topPicks" class="grid grid-cols-3 gap-4"></div>
+        </section>
+
+        <section class="mt-2">
+          <h2 class="text-sm font-medium text-slate-300 tracking-[0.16em] uppercase mb-4">All matches</h2>
+          <div id="allMatches" class="space-y-4"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="../scripts/pages/explorepage.js"></script>
+</body>
+</html>

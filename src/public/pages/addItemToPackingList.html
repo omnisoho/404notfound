@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Packing Item</title>
+  <link rel="stylesheet" href="packingList.css">
+</head>
+<body>
+  <h1>Add Packing Item</h1>
+  <div id="customItemForm">
+    <h2>Custom Item</h2>
+    <form id="addItemForm">
+      <label>
+        Item Name:
+        <input type="text" id="customName" required>
+      </label>
+      <button type="submit">Add Item</button>
+    </form>
+  </div>
+
+  <div id="catalogContainer">
+  <h2>Catalog Items</h2>
+
+  <!-- 🔍 Search Bar -->
+  <input 
+    type="text" 
+    id="searchInput" 
+    placeholder="Search items..."
+    style="margin-bottom: 10px; width: 200px;"
+  >
+
+  <ul id="catalogList"></ul>
+  <p id="noCatalogMsg" style="display:none;">No catalog items found.</p>
+</div>
+
+  <script src="../scripts/packing-list/addItemToPackingList.js" type="text/javascript"></script>
+</body>
+</html>

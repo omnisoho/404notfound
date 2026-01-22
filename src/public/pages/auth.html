@@ -1,0 +1,2948 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In — Kōsui</title>
+    <link rel="stylesheet" href="../styles/output.css" />
+
+    <!--
+      Authentication Page Styles
+      Handles dual-panel layout (form + visual), form transitions, and responsive behavior
+    -->
+    <style>
+      /* ==========================================================================
+         CSS Variables - Design System Tokens
+         ========================================================================== */
+
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      :root {
+        /* Color Palette - Aligned with Tailwind config */
+        --ink: #060606;
+        --canvas: #f3f1eb;
+        --sheet: #fefdf9;
+        --border: #dcd6c8;
+        --muted: #6d7177;
+        --navy: #1e3a5f;
+        --navy-light: #2d4f7c;
+
+        /* Animation Timings - Swiss/Swedish Precision Easing */
+        --transition-fast: 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+        --transition-base: 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+        --transition-slow: 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+        --transition-spring: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        --easing-swiss: cubic-bezier(0.25, 0.1, 0.25, 1);
+        --easing-premium: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      /* ==========================================================================
+         Base Styles
+         ========================================================================== */
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: var(--canvas);
+        color: var(--ink);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ==========================================================================
+         Layout - Dual Panel Container
+         ========================================================================== */
+
+      .auth-container {
+        height: 100vh;
+        max-height: 100vh;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      @media (max-width: 768px) {
+        .auth-container {
+          grid-template-columns: 1fr;
+        }
+        .auth-visual {
+          display: none;
+        }
+      }
+
+      /* ==========================================================================
+         Form Side - Left Panel
+         ========================================================================== */
+
+      .auth-form-side {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: clamp(0.75rem, 2.5vw, 1.5rem);
+        padding-top: clamp(1rem, 4vh, 2.5rem);
+        padding-bottom: clamp(0.75rem, 2.5vw, 1.5rem);
+        height: 100vh;
+        max-height: 100vh;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        position: relative;
+        box-sizing: border-box;
+        width: 100%;
+      }
+
+      .auth-form-side > .fade-in {
+        position: relative;
+        max-width: min(420px, 92vw);
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        max-height: 100%;
+        overflow: hidden;
+        min-height: 0;
+        gap: 0.5rem;
+        padding-top: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      /* Laptop/Desktop: Adjust padding for absolute back button */
+      @media (min-width: 769px) {
+        .auth-form-side > .fade-in {
+          padding-top: 0.75rem;
+          padding-bottom: 0.75rem;
+        }
+      }
+
+      /* Back Button - Matches App Button Design Language */
+      .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.875rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink);
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        transition: all var(--transition-fast);
+        text-decoration: none;
+        white-space: nowrap;
+        align-self: flex-start;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Laptop/Desktop: Position back button absolutely in top-left of screen */
+      @media (min-width: 769px) {
+        .back-button {
+          position: fixed;
+          top: 1.5rem;
+          left: 1.5rem;
+          margin-bottom: 0;
+          z-index: 100;
+        }
+
+        /* Add padding to brand section to account for absolute back button */
+        .fade-in > .back-button + div {
+          padding-top: 0;
+        }
+      }
+
+      .back-button:hover {
+        border-color: var(--navy);
+        background: var(--canvas);
+        transform: translateY(-1px);
+      }
+
+      .back-button:active {
+        transform: translateY(0);
+      }
+
+      .back-button svg {
+        width: 14px;
+        height: 14px;
+        transition: transform var(--transition-fast);
+      }
+
+      .back-button:hover svg {
+        transform: translateX(-2px);
+      }
+
+      /* Mobile: Adjust back button position */
+      @media (max-width: 768px) {
+        .auth-form-side {
+          padding-left: 1.25rem;
+          padding-right: 1.25rem;
+          padding-top: 1.5rem;
+          padding-bottom: 1.5rem;
+          height: 100vh;
+          max-height: 100vh;
+          overflow: hidden;
+          align-items: flex-start;
+        }
+
+        .auth-form-side > .fade-in {
+          width: 100%;
+          max-width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        .form-container {
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .form-wrapper.active {
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding-bottom: 2rem;
+          padding-right: 0.75rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .back-button {
+          margin-bottom: 1.25rem;
+          padding: 0.5625rem 0.875rem;
+          font-size: 0.5625rem;
+        }
+
+        .auth-form-side {
+          padding-left: 1rem;
+          padding-right: 1rem;
+          padding-top: 1.25rem;
+          padding-bottom: 1.25rem;
+          height: 100vh;
+          max-height: 100vh;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .back-button {
+          margin-bottom: 1rem;
+          padding: 0.5rem 0.75rem;
+        }
+
+        .auth-form-side {
+          padding-left: 0.875rem;
+          padding-right: 0.875rem;
+          padding-top: 1rem;
+          padding-bottom: 1rem;
+          height: 100vh;
+          max-height: 100vh;
+        }
+
+        .auth-form-side > .fade-in {
+          gap: 0.5rem;
+        }
+
+        /* Tighter spacing on very small screens */
+        .fade-in > div:first-child {
+          margin-bottom: 0.75rem !important;
+        }
+
+        form.space-y-3 > * + *,
+        form.space-y-3.sm\\:space-y-4 > * + * {
+          margin-top: 0.625rem;
+        }
+
+        h2 {
+          margin-bottom: 1rem !important;
+        }
+      }
+
+      /* Tablet */
+      @media (max-width: 1024px) and (min-width: 769px) {
+        .auth-form-side {
+          padding: 1.5rem;
+          height: 100vh;
+          max-height: 100vh;
+          overflow: hidden;
+        }
+        .auth-form-side > .fade-in {
+          max-height: 100%;
+          height: 100%;
+          overflow: hidden;
+        }
+        .form-container {
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+        .form-wrapper.active {
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+      }
+
+      /* Large Desktop */
+      @media (min-width: 1440px) {
+        .auth-form-side {
+          padding: clamp(1.5rem, 3vw, 2.5rem);
+        }
+        .auth-form-side > .fade-in {
+          max-width: 480px;
+          max-height: calc(100vh - clamp(3rem, 6vw, 5rem));
+        }
+      }
+
+      /* Extra Large Desktop */
+      @media (min-width: 1920px) {
+        .auth-form-side {
+          padding: clamp(2rem, 4vw, 3rem);
+        }
+        .auth-form-side > .fade-in {
+          max-width: 520px;
+          max-height: calc(100vh - clamp(4rem, 8vw, 6rem));
+        }
+      }
+
+      /* ==========================================================================
+         Visual Side - Right Panel
+         ========================================================================== */
+
+      .auth-visual {
+        background: #fafafa;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        padding: 0;
+      }
+
+      .visual-scene {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        animation: sceneBreath 12s ease-in-out infinite;
+      }
+
+      .visual-stats {
+        position: absolute;
+        bottom: 3rem;
+        left: 3rem;
+        right: 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        animation: elementFade 2s ease-out 1.5s forwards;
+        opacity: 0;
+      }
+
+      .stat-item {
+        text-align: left;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--navy);
+      }
+
+      .stat-label {
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+      }
+
+      .brand-mark {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--navy);
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+      }
+
+      .brand-mark-letter {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--navy);
+      }
+
+      .brand-mark-text {
+        font-size: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-top: 0.25rem;
+      }
+
+      /* ==========================================================================
+         Form Components
+         ========================================================================== */
+
+      .form-container {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .form-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        transform: translateX(24px);
+        pointer-events: none;
+        transition: opacity 0.4s var(--easing-premium),
+          transform 0.4s var(--easing-premium),
+          visibility 0.4s var(--easing-premium);
+        visibility: hidden;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        will-change: opacity, transform;
+      }
+
+      .form-wrapper.active {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+        visibility: visible;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box;
+        padding-bottom: 2rem;
+        padding-right: 0.75rem;
+        margin: 0;
+        will-change: auto;
+      }
+
+      .form-wrapper.active::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .form-wrapper.active::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .form-wrapper.active::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+      }
+
+      .form-wrapper.active::-webkit-scrollbar-thumb:hover {
+        background: var(--muted);
+      }
+
+      .form-wrapper.exiting {
+        opacity: 0;
+        transform: translateX(-24px);
+        visibility: hidden;
+      }
+
+      .form-input {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        border: 1px solid var(--border);
+        box-sizing: border-box;
+        outline: none;
+        transition: border-color var(--transition-fast);
+        font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
+        padding: clamp(0.875rem, 2vw, 1rem);
+      }
+
+      .form-input:focus {
+        outline: none;
+        border: 1px solid var(--navy);
+      }
+
+      /* ==========================================================================
+         Tab Navigation
+         ========================================================================== */
+
+      .tab-button {
+        flex: 1;
+        padding-top: clamp(0.75rem, 1.5vw, 0.875rem);
+        padding-bottom: clamp(0.75rem, 1.5vw, 0.875rem);
+        font-size: clamp(0.6875rem, 1.2vw, 0.75rem);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-weight: 600;
+        transition: all var(--transition-fast);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Animated underline indicator - Swiss/Swedish Precision */
+      .tab-button::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--navy);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.35s var(--easing-premium);
+        will-change: transform;
+      }
+
+      .tab-button.active::before {
+        transform: scaleX(1);
+      }
+
+      /* ==========================================================================
+         Account Linking Modal
+         ========================================================================== */
+
+      .account-linking-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        opacity: 0;
+        transition: opacity var(--transition-base);
+      }
+
+      .account-linking-modal.active {
+        display: flex;
+        opacity: 1;
+      }
+
+      .account-linking-modal-content {
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--navy);
+        max-width: 480px;
+        width: 100%;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        transform: translateY(20px);
+        transition: transform var(--transition-base);
+      }
+
+      .account-linking-modal.active .account-linking-modal-content {
+        transform: translateY(0);
+      }
+
+      .account-linking-modal-header {
+        margin-bottom: 1.5rem;
+      }
+
+      .account-linking-modal-title {
+        font-size: clamp(1rem, 2vw, 1.125rem);
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.5rem;
+      }
+
+      .account-linking-modal-description {
+        font-size: clamp(0.8125rem, 1.4vw, 0.875rem);
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .account-linking-modal-email {
+        font-weight: 600;
+        color: var(--navy);
+      }
+
+      .account-linking-modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      .account-linking-modal-btn {
+        flex: 1;
+        padding: 0.875rem 1.5rem;
+        font-size: clamp(0.625rem, 1.2vw, 0.75rem);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        border: 1px solid;
+        transition: all var(--transition-fast);
+        cursor: pointer;
+      }
+
+      .account-linking-modal-btn-primary {
+        background: var(--navy);
+        color: var(--sheet);
+        border-color: var(--navy);
+      }
+
+      .account-linking-modal-btn-primary:hover {
+        background: transparent;
+        color: var(--navy);
+        transform: translateY(-1px);
+      }
+
+      .account-linking-modal-btn-secondary {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--border);
+      }
+
+      .account-linking-modal-btn-secondary:hover {
+        border-color: var(--navy);
+        background: var(--canvas);
+        transform: translateY(-1px);
+      }
+
+      .account-linking-modal-btn:active {
+        transform: translateY(0);
+      }
+
+      .account-linking-modal-loading {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        font-size: 0.8125rem;
+        color: var(--muted);
+      }
+
+      .account-linking-modal-loading.active {
+        display: flex;
+      }
+
+      .account-linking-modal-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--border);
+        border-top-color: var(--navy);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ==========================================================================
+         Message Alerts
+         ========================================================================== */
+
+      .message-alert {
+        display: none;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        border: 1px solid;
+        border-radius: 0;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+
+      .message-alert:not(.hidden) {
+        display: flex;
+        animation: slideInDown var(--transition-fast);
+      }
+
+      .message-alert-error {
+        background: var(--sheet);
+        border-color: #d97706;
+        color: #92400e;
+      }
+
+      .message-alert-success {
+        background: var(--sheet);
+        border-color: #059669;
+        color: #047857;
+      }
+
+      .message-alert-icon {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+      }
+
+      /* ==========================================================================
+         Confirm Password Feedback Animation
+         ========================================================================== */
+
+      .confirm-password-feedback {
+        display: block;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        margin-top: 0;
+        visibility: hidden;
+        transition: max-height 0.3s var(--easing-premium),
+          opacity 0.3s var(--easing-premium),
+          margin-top 0.3s var(--easing-premium), visibility 0s 0.3s;
+      }
+
+      .confirm-password-feedback.show {
+        max-height: 50px;
+        opacity: 1;
+        margin-top: 0.5rem;
+        visibility: visible;
+        transition: max-height 0.3s var(--easing-premium),
+          opacity 0.3s var(--easing-premium),
+          margin-top 0.3s var(--easing-premium), visibility 0s;
+      }
+
+      .confirm-password-feedback.hidden {
+        display: none !important;
+      }
+
+      /* ==========================================================================
+         Custom Checkbox Component
+         ========================================================================== */
+
+      .custom-checkbox {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .custom-checkbox input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+      }
+
+      .custom-checkbox-box {
+        position: relative;
+        width: 18px;
+        height: 18px;
+        border: 1px solid var(--border);
+        background: var(--sheet);
+        transition: all var(--transition-fast);
+        flex-shrink: 0;
+      }
+
+      .custom-checkbox:hover .custom-checkbox-box {
+        border-color: var(--navy);
+        background: var(--canvas);
+      }
+
+      .custom-checkbox input[type="checkbox"]:checked + .custom-checkbox-box {
+        background: var(--navy);
+        border-color: var(--navy);
+      }
+
+      .custom-checkbox-checkmark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        width: 10px;
+        height: 10px;
+        opacity: 0;
+        transition: all var(--transition-spring);
+      }
+
+      .custom-checkbox
+        input[type="checkbox"]:checked
+        + .custom-checkbox-box
+        .custom-checkbox-checkmark {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+
+      .custom-checkbox-checkmark svg {
+        width: 100%;
+        height: 100%;
+        stroke: var(--sheet);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .custom-checkbox-label {
+        margin-left: 0.625rem;
+        font-size: 0.875rem;
+        color: var(--muted);
+        line-height: 1.5;
+        transition: color var(--transition-fast);
+      }
+
+      .custom-checkbox:hover .custom-checkbox-label,
+      .custom-checkbox input[type="checkbox"]:checked ~ .custom-checkbox-label {
+        color: var(--ink);
+      }
+
+      /* Terms checkbox error state */
+      .custom-checkbox.error .custom-checkbox-box {
+        border-color: #ef4444;
+        border-width: 1px;
+        background: rgba(239, 68, 68, 0.05);
+        animation: shake 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+      }
+
+      .custom-checkbox.error .custom-checkbox-label {
+        color: #ef4444;
+        font-weight: 500;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-4px);
+        }
+        75% {
+          transform: translateX(4px);
+        }
+      }
+
+      /* ==========================================================================
+         Link Components
+         ========================================================================== */
+
+      .underline-link {
+        position: relative;
+        text-decoration: none;
+        transition: color var(--transition-fast);
+        display: inline-block;
+      }
+
+      /* Animated underline on hover */
+      .underline-link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: 0;
+        height: 1px;
+        background: var(--navy);
+        transition: width var(--transition-slow);
+      }
+
+      .underline-link:hover::after {
+        width: 100%;
+      }
+
+      .back-button:hover svg {
+        transform: translateX(-2px);
+      }
+
+      /* ==========================================================================
+         Animations
+         ========================================================================== */
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes sceneBreath {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+      }
+
+      @keyframes elementFade {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn var(--transition-slow);
+      }
+
+      .visual-element {
+        animation: elementFade 2s ease-out forwards;
+        opacity: 0;
+      }
+
+      /* ==========================================================================
+         Zoom-Friendly Overrides - Ensures proper scaling at 125%, 150%, etc.
+         ========================================================================== */
+
+      /* Override Tailwind text sizes to be zoom-friendly */
+      .text-xs {
+        font-size: clamp(0.625rem, 1.2vw, 0.75rem) !important;
+      }
+
+      .text-sm {
+        font-size: clamp(0.8125rem, 1.4vw, 0.875rem) !important;
+      }
+
+      .text-lg {
+        font-size: clamp(1rem, 2vw, 1.125rem) !important;
+      }
+
+      .text-xl {
+        font-size: clamp(1.125rem, 2.5vw, 1.25rem) !important;
+      }
+
+      .text-2xl {
+        font-size: clamp(1.25rem, 3vw, 1.5rem) !important;
+      }
+
+      /* Override input padding to scale with zoom */
+      input.form-input,
+      .form-input {
+        padding: clamp(0.75rem, 1.8vw, 1rem) !important;
+        font-size: clamp(0.875rem, 1.5vw, 0.9375rem) !important;
+      }
+
+      /* Override hardcoded Tailwind text sizes */
+      .text-\[0\.875rem\] {
+        font-size: clamp(0.8125rem, 1.4vw, 0.9375rem) !important;
+      }
+
+      .text-\[0\.9375rem\] {
+        font-size: clamp(0.875rem, 1.5vw, 1rem) !important;
+      }
+
+      .text-\[0\.625rem\] {
+        font-size: clamp(0.5625rem, 1.1vw, 0.6875rem) !important;
+      }
+
+      /* Override button padding to scale */
+      button[type="submit"],
+      .w-full button {
+        padding-top: clamp(0.75rem, 1.8vw, 1rem) !important;
+        padding-bottom: clamp(0.75rem, 1.8vw, 1rem) !important;
+        padding-left: clamp(1rem, 2.5vw, 1.5rem) !important;
+        padding-right: clamp(1rem, 2.5vw, 1.5rem) !important;
+        font-size: clamp(0.625rem, 1.2vw, 0.75rem) !important;
+      }
+
+      /* Override spacing to be more flexible */
+      .space-y-3 > * + * {
+        margin-top: clamp(0.625rem, 1.5vh, 0.75rem) !important;
+      }
+
+      .space-y-4 > * + * {
+        margin-top: clamp(0.75rem, 2vh, 1rem) !important;
+      }
+
+      /* Override margin bottom classes */
+      .mb-1 {
+        margin-bottom: clamp(0.25rem, 0.5vh, 0.375rem) !important;
+      }
+
+      .mb-2 {
+        margin-bottom: clamp(0.375rem, 0.8vh, 0.5rem) !important;
+      }
+
+      .mb-3 {
+        margin-bottom: clamp(0.5rem, 1.2vh, 0.75rem) !important;
+      }
+
+      .mb-4 {
+        margin-bottom: clamp(0.75rem, 1.5vh, 1rem) !important;
+      }
+
+      .mb-5 {
+        margin-bottom: clamp(1rem, 2vh, 1.25rem) !important;
+      }
+
+      .mb-6 {
+        margin-bottom: clamp(1.25rem, 2.5vh, 1.5rem) !important;
+      }
+
+      /* Override margin top classes */
+      .mt-3 {
+        margin-top: clamp(0.5rem, 1.2vh, 0.75rem) !important;
+      }
+
+      .mt-4 {
+        margin-top: clamp(0.75rem, 1.5vh, 1rem) !important;
+      }
+
+      .mt-5 {
+        margin-top: clamp(1rem, 2vh, 1.25rem) !important;
+      }
+
+      /* Override heading sizes */
+      h1 {
+        font-size: clamp(1.125rem, 2.5vw, 1.5rem) !important;
+        margin-bottom: clamp(0.25rem, 0.5vh, 0.375rem) !important;
+      }
+
+      h2 {
+        font-size: clamp(1rem, 2vw, 1.125rem) !important;
+        margin-bottom: clamp(0.75rem, 1.5vh, 1rem) !important;
+      }
+
+      /* Override label spacing */
+      label {
+        margin-bottom: clamp(0.375rem, 0.8vh, 0.5rem) !important;
+        font-size: clamp(0.625rem, 1.2vw, 0.75rem) !important;
+      }
+
+      /* Social button spacing */
+      .grid.grid-cols-2 {
+        gap: clamp(0.5rem, 1.5vw, 0.75rem) !important;
+      }
+
+      /* ==========================================================================
+         Responsive Adjustments
+         ========================================================================== */
+
+      @media (min-width: 1440px) {
+        .form-container {
+          padding: 0.5rem 0;
+        }
+
+        .form-input {
+          padding: 1.125rem;
+          font-size: 1rem;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+          padding: 1.125rem 1.75rem;
+          font-size: 0.8125rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .form-input {
+          padding: 1rem;
+          font-size: 0.9375rem;
+        }
+
+        .tab-button {
+          padding-top: 1rem;
+          padding-bottom: 1rem;
+          font-size: 0.6875rem;
+        }
+
+        .message-alert {
+          padding: 0.75rem 0.875rem;
+          font-size: 0.75rem;
+          margin-bottom: 0.875rem;
+        }
+
+        /* Ensure brand and tabs don't take too much space */
+        .fade-in > div:first-child {
+          flex-shrink: 0;
+        }
+
+        .fade-in > div:nth-child(2) {
+          flex-shrink: 0;
+        }
+
+        /* Reduce spacing on mobile for better fit */
+        .fade-in > div:first-child {
+          margin-bottom: 1rem !important;
+        }
+
+        form.space-y-3 > * + *,
+        form.space-y-3.sm\\:space-y-4 > * + * {
+          margin-top: 0.75rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .form-input {
+          padding: 0.9375rem;
+          font-size: 0.9375rem;
+        }
+
+        .tab-button {
+          padding-top: 0.875rem;
+          padding-bottom: 0.875rem;
+        }
+
+        form.space-y-3 > * + * {
+          margin-top: 0.875rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .form-input {
+          padding: 0.875rem;
+          font-size: 0.875rem;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+          padding: 0.875rem 1.25rem;
+          font-size: 0.6875rem;
+        }
+
+        .divider span {
+          font-size: 0.6875rem;
+          padding: 0 0.75rem;
+        }
+
+        .fade-in > .back-button + div {
+          margin-top: 0 !important;
+        }
+
+        .tab-button {
+          padding-top: 0.75rem;
+          padding-bottom: 0.75rem;
+          font-size: 0.625rem;
+        }
+
+        form.space-y-3 > * + * {
+          margin-top: 0.75rem;
+        }
+
+        .message-alert {
+          padding: 0.6875rem 0.75rem;
+          font-size: 0.6875rem;
+          margin-bottom: 0.75rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-container">
+      <!--
+        Form Panel - Left Side
+        Contains authentication forms (login/register) with tab switching
+      -->
+      <div class="auth-form-side">
+        <div class="fade-in">
+          <!-- Navigation: Back to Landing Page - Subtle Link -->
+          <a href="/" class="back-button">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            <span>Back</span>
+          </a>
+          <!-- Brand Identity -->
+          <div class="mb-4 flex-shrink-0" id="brandSection">
+            <h1
+              class="text-xl sm:text-2xl md:text-2xl font-bold tracking-tight mb-1 sm:mb-1.5 text-navy"
+            >
+              Kōsui
+            </h1>
+            <p class="text-xs sm:text-xs uppercase tracking-widest text-muted">
+              Travel Smarter
+            </p>
+          </div>
+
+          <!-- Tab Navigation: Sign In / Register -->
+          <div class="mb-4 flex border-b border-border relative">
+            <button
+              id="loginTab"
+              class="tab-button active flex-1 py-3.5 bg-transparent border-none text-navy"
+            >
+              Sign In
+            </button>
+            <button
+              id="registerTab"
+              class="tab-button flex-1 py-3.5 bg-transparent border-none text-muted"
+            >
+              Register
+            </button>
+          </div>
+
+          <!-- Form Container: Handles smooth transitions between forms -->
+          <div class="form-container">
+            <!-- Login Form -->
+            <div id="loginForm" class="form-wrapper active">
+              <h2 class="text-lg sm:text-xl font-semibold mb-4">
+                Welcome back
+              </h2>
+
+              <form id="loginFormElement" class="space-y-3">
+                <!-- Error Message Display -->
+                <div
+                  id="loginError"
+                  class="hidden message-alert message-alert-error"
+                >
+                  <i data-lucide="alert-circle" class="message-alert-icon"></i>
+                  <span></span>
+                </div>
+
+                <!-- Success Message Display -->
+                <div
+                  id="loginSuccess"
+                  class="hidden message-alert message-alert-success"
+                >
+                  <i data-lucide="check-circle" class="message-alert-icon"></i>
+                  <span></span>
+                </div>
+
+                <!-- Email Input -->
+                <div>
+                  <label
+                    class="block text-xs uppercase tracking-widest mb-2"
+                    style="color: var(--muted)"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="loginEmail"
+                    type="email"
+                    class="form-input w-full p-3 bg-sheet text-[0.875rem] transition-all duration-200 placeholder:text-muted"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+
+                <!-- Password Input -->
+                <div>
+                  <label
+                    class="block text-xs uppercase tracking-widest mb-2"
+                    style="color: var(--muted)"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="loginPassword"
+                    type="password"
+                    class="form-input w-full p-3 bg-sheet text-[0.875rem] transition-all duration-200 placeholder:text-muted"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div
+                  class="flex items-center justify-between text-sm mt-3 sm:mt-4"
+                >
+                  <label class="custom-checkbox">
+                    <input type="checkbox" />
+                    <span class="custom-checkbox-box">
+                      <span class="custom-checkbox-checkmark">
+                        <svg viewBox="0 0 24 24" fill="none">
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                      </span>
+                    </span>
+                    <span class="custom-checkbox-label">Remember me</span>
+                  </label>
+                  <a
+                    href="/forgot-password"
+                    class="text-xs uppercase tracking-wider underline-link text-ink"
+                    >Forgot?</a
+                  >
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                  type="submit"
+                  class="w-full mt-4 sm:mt-5 px-5 sm:px-6 py-3.5 sm:py-4 bg-navy text-sheet border border-navy text-xs font-semibold uppercase tracking-[0.15em] transition-all duration-300 hover:bg-transparent hover:text-navy hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  Sign In
+                </button>
+              </form>
+
+              <!-- Social Login Divider -->
+              <div
+                class="mt-4 sm:mt-5 mb-0 opacity-100 transition-opacity duration-300"
+              >
+                <div
+                  class="flex items-center text-center my-5 sm:my-6 before:content-[''] before:flex-1 before:border-b before:border-border after:content-[''] after:flex-1 after:border-b after:border-border"
+                >
+                  <span
+                    class="px-3 sm:px-4 text-muted text-xs uppercase tracking-[0.1em]"
+                    >Or continue with</span
+                  >
+                </div>
+              </div>
+
+              <!-- Social Login Buttons -->
+              <div
+                class="mt-3 sm:mt-3 mb-0 opacity-100 transition-opacity duration-300"
+              >
+                <div class="grid grid-cols-2 gap-3">
+                  <button
+                    id="googleLoginBtn"
+                    type="button"
+                    class="w-full px-6 py-3.5 bg-transparent text-ink border border-border text-xs font-semibold uppercase tracking-[0.15em] transition-all duration-300 hover:border-navy hover:bg-canvas hover:-translate-y-0.5 active:translate-y-0 min-h-[44px]"
+                  >
+                    <span class="flex items-center justify-center gap-2">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path
+                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        />
+                        <path
+                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        />
+                        <path
+                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                        />
+                        <path
+                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        />
+                      </svg>
+                      Google
+                    </span>
+                  </button>
+                  <button
+                    id="facebookLoginBtn"
+                    type="button"
+                    class="w-full px-6 py-3.5 bg-transparent text-ink border border-border text-xs font-semibold uppercase tracking-[0.15em] transition-all duration-300 hover:border-navy hover:bg-canvas hover:-translate-y-0.5 active:translate-y-0 min-h-[44px]"
+                  >
+                    <span class="flex items-center justify-center gap-2">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path
+                          d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                        />
+                      </svg>
+                      Facebook
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="form-wrapper">
+              <h2 class="text-lg sm:text-xl font-semibold mb-4">
+                Create your account
+              </h2>
+
+              <form id="registerFormElement" class="space-y-3">
+                <!-- Error Message Display -->
+                <div
+                  id="registerError"
+                  class="hidden message-alert message-alert-error"
+                >
+                  <i data-lucide="alert-circle" class="message-alert-icon"></i>
+                  <span></span>
+                </div>
+
+                <!-- Success Message Display -->
+                <div
+                  id="registerSuccess"
+                  class="hidden message-alert message-alert-success"
+                >
+                  <i data-lucide="check-circle" class="message-alert-icon"></i>
+                  <span></span>
+                </div>
+
+                <!-- Full Name Input -->
+                <div>
+                  <label
+                    class="block text-xs uppercase tracking-widest mb-2"
+                    style="color: var(--muted)"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    id="registerName"
+                    type="text"
+                    class="form-input w-full p-3 bg-sheet text-[0.875rem] transition-all duration-200 placeholder:text-muted"
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+
+                <!-- Email Input -->
+                <div>
+                  <label
+                    class="block text-xs uppercase tracking-widest mb-2"
+                    style="color: var(--muted)"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="registerEmail"
+                    type="email"
+                    class="form-input w-full p-3 bg-sheet text-[0.875rem] transition-all duration-200 placeholder:text-muted"
+                    placeholder="your@email.com"
+                    required
+                  />
+                </div>
+
+                <!-- Password Input -->
+                <div>
+                  <label
+                    class="block text-xs uppercase tracking-widest mb-2"
+                    style="color: var(--muted)"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="registerPassword"
+                    type="password"
+                    class="form-input w-full p-3 bg-sheet text-[0.875rem] transition-all duration-200 placeholder:text-muted"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <!-- Password Requirements -->
+                  <div class="mt-2">
+                    <p
+                      id="passwordRequirements"
+                      class="text-[0.6875rem] leading-relaxed transition-colors duration-300"
+                      style="color: var(--muted)"
+                    >
+                      Password must be at least 8 characters long with numbers
+                      or symbols
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Confirm Password Input -->
+                <div>
+                  <label
+                    class="block text-xs uppercase tracking-widest mb-2"
+                    style="color: var(--muted)"
+                  >
+                    Confirm Password
+                  </label>
+                  <input
+                    id="registerConfirmPassword"
+                    type="password"
+                    class="form-input w-full p-3 bg-sheet text-[0.875rem] transition-all duration-200 placeholder:text-muted"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <!-- Confirm Password Feedback -->
+                  <div
+                    id="confirmPasswordFeedback"
+                    class="confirm-password-feedback mt-2 hidden"
+                  >
+                    <p
+                      class="text-[0.6875rem] leading-relaxed"
+                      style="color: #ef4444"
+                    >
+                      Passwords do not match
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Terms Acceptance -->
+                <div class="flex items-start text-sm mt-3">
+                  <label class="custom-checkbox" id="termsCheckboxLabel">
+                    <input type="checkbox" id="termsCheckbox" />
+                    <span class="custom-checkbox-box">
+                      <span class="custom-checkbox-checkmark">
+                        <svg viewBox="0 0 24 24" fill="none">
+                          <path d="M20 6L9 17l-5-5" />
+                        </svg>
+                      </span>
+                    </span>
+                    <span class="custom-checkbox-label">
+                      I agree to the
+                      <a href="#" class="underline-link text-ink">Terms</a>
+                      and
+                      <a href="#" class="underline-link text-ink"
+                        >Privacy Policy</a
+                      >
+                    </span>
+                  </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                  type="submit"
+                  class="w-full mt-3 px-5 py-3.5 bg-navy text-sheet border border-navy text-xs font-semibold uppercase tracking-[0.15em] transition-all duration-300 hover:bg-transparent hover:text-navy hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  Create Account
+                </button>
+              </form>
+
+              <!-- Social Login Divider -->
+              <div
+                class="mt-3 mb-0 opacity-100 transition-opacity duration-300"
+              >
+                <div
+                  class="flex items-center text-center my-3 before:content-[''] before:flex-1 before:border-b before:border-border after:content-[''] after:flex-1 after:border-b after:border-border"
+                >
+                  <span
+                    class="px-3 text-muted text-xs uppercase tracking-[0.1em]"
+                    >Or continue with</span
+                  >
+                </div>
+              </div>
+
+              <!-- Social Login Buttons -->
+              <div
+                class="mt-3 mb-0 opacity-100 transition-opacity duration-300"
+              >
+                <div class="grid grid-cols-2 gap-3">
+                  <button
+                    id="googleRegisterBtn"
+                    type="button"
+                    class="w-full px-6 py-3.5 bg-transparent text-ink border border-border text-xs font-semibold uppercase tracking-[0.15em] transition-all duration-300 hover:border-navy hover:bg-canvas hover:-translate-y-0.5 active:translate-y-0 min-h-[44px]"
+                  >
+                    <span class="flex items-center justify-center gap-2">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path
+                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        />
+                        <path
+                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        />
+                        <path
+                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                        />
+                        <path
+                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        />
+                      </svg>
+                      Google
+                    </span>
+                  </button>
+                  <button
+                    id="facebookRegisterBtn"
+                    type="button"
+                    class="w-full px-6 py-3.5 bg-transparent text-ink border border-border text-xs font-semibold uppercase tracking-[0.15em] transition-all duration-300 hover:border-navy hover:bg-canvas hover:-translate-y-0.5 active:translate-y-0 min-h-[44px]"
+                  >
+                    <span class="flex items-center justify-center gap-2">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path
+                          d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                        />
+                      </svg>
+                      Facebook
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--
+        Visual Panel - Right Side
+        Displays animated world map with travel statistics (hidden on mobile)
+      -->
+      <div class="auth-visual">
+        <div class="visual-scene">
+          <!-- SVG World Map -->
+          <svg
+            viewBox="0 0 800 600"
+            xmlns="http://www.w3.org/2000/svg"
+            style="
+              width: 100%;
+              height: 100%;
+              position: absolute;
+              top: 0;
+              left: 0;
+            "
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <defs>
+              <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop
+                  offset="0%"
+                  style="stop-color: #c8c8c8; stop-opacity: 1"
+                />
+                <stop
+                  offset="30%"
+                  style="stop-color: #d8d8d8; stop-opacity: 1"
+                />
+                <stop
+                  offset="70%"
+                  style="stop-color: #e8e8e8; stop-opacity: 1"
+                />
+                <stop
+                  offset="100%"
+                  style="stop-color: #efefef; stop-opacity: 1"
+                />
+              </linearGradient>
+            </defs>
+
+            <!-- Background -->
+            <rect width="800" height="600" fill="#e0e0e0" />
+
+            <!-- Continents -->
+            <g class="visual-element" style="animation-delay: 0.2s">
+              <path
+                d="M 120 140 L 180 138 L 220 142 L 250 150 L 270 165 L 280 185 L 278 210 L 270 235 L 255 255 L 235 270 L 210 280 L 180 285 L 150 283 L 125 275 L 105 260 L 92 240 L 88 215 L 90 190 L 95 165 L 105 150 Z"
+                fill="#b8b8b8"
+                opacity="0.25"
+              />
+              <path
+                d="M 228 320 L 240 330 L 248 350 L 252 375 L 253 405 L 250 435 L 243 460 L 232 475 L 220 480 L 210 475 L 203 460 L 200 435 L 200 400 L 202 365 L 206 340 L 212 325 Z"
+                fill="#b8b8b8"
+                opacity="0.25"
+              />
+              <path
+                d="M 380 145 L 400 143 L 420 146 L 435 152 L 445 162 L 448 175 L 446 190 L 440 202 L 430 210 L 418 213 L 405 212 L 393 207 L 384 198 L 378 187 L 376 175 L 377 162 Z"
+                fill="#b8b8b8"
+                opacity="0.25"
+              />
+              <path
+                d="M 410 210 L 435 208 L 460 213 L 480 222 L 495 235 L 505 252 L 510 272 L 512 295 L 510 320 L 504 345 L 494 370 L 480 392 L 462 410 L 442 422 L 420 428 L 400 428 L 385 424 L 375 415 L 370 400 L 368 380 L 368 360 L 370 340 L 373 320 L 378 300 L 384 280 L 392 260 L 400 240 L 405 222 Z"
+                fill="#b8b8b8"
+                opacity="0.25"
+              />
+              <path
+                d="M 480 130 L 520 128 L 560 130 L 600 135 L 640 142 L 680 152 L 715 165 L 740 182 L 755 202 L 762 225 L 760 250 L 750 275 L 732 295 L 708 310 L 680 320 L 650 325 L 620 326 L 590 324 L 560 318 L 532 308 L 508 294 L 488 276 L 474 255 L 466 232 L 464 208 L 468 185 L 476 163 L 488 145 Z"
+                fill="#b8b8b8"
+                opacity="0.25"
+              />
+              <path
+                d="M 620 385 L 650 383 L 675 386 L 695 392 L 710 402 L 718 415 L 720 430 L 715 445 L 705 457 L 690 465 L 670 470 L 650 472 L 630 470 L 612 465 L 598 456 L 588 444 L 583 430 L 585 415 L 592 402 L 603 392 Z"
+                fill="#b8b8b8"
+                opacity="0.25"
+              />
+            </g>
+
+            <!-- City Markers -->
+            <g class="visual-element" style="animation-delay: 0.35s">
+              <circle cx="205" cy="185" r="4" fill="#1e3a5f" opacity="0.8" />
+              <circle
+                cx="205"
+                cy="185"
+                r="6"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.5"
+              />
+              <circle cx="395" cy="170" r="4" fill="#1e3a5f" opacity="0.8" />
+              <circle
+                cx="395"
+                cy="170"
+                r="6"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.5"
+              />
+              <circle cx="680" cy="190" r="4" fill="#1e3a5f" opacity="0.8" />
+              <circle
+                cx="680"
+                cy="190"
+                r="6"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.5"
+              />
+              <circle cx="620" cy="295" r="4" fill="#1e3a5f" opacity="0.8" />
+              <circle
+                cx="620"
+                cy="295"
+                r="6"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.5"
+              />
+              <circle cx="510" cy="230" r="4" fill="#1e3a5f" opacity="0.8" />
+              <circle
+                cx="510"
+                cy="230"
+                r="6"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.5"
+              />
+              <circle cx="665" cy="420" r="4" fill="#1e3a5f" opacity="0.8" />
+              <circle
+                cx="665"
+                cy="420"
+                r="6"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.5"
+              />
+              <circle cx="245" cy="360" r="4" fill="#1e3a5f" opacity="0.8" />
+              <circle
+                cx="245"
+                cy="360"
+                r="6"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.5"
+              />
+            </g>
+
+            <!-- Flight Routes -->
+            <g class="visual-element" style="animation-delay: 0.5s">
+              <path
+                d="M 205 185 Q 300 160 395 170"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.4"
+                stroke-dasharray="6 8"
+              />
+              <path
+                d="M 395 170 Q 450 190 510 230"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.4"
+                stroke-dasharray="6 8"
+              />
+              <path
+                d="M 510 230 Q 565 255 620 295"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.4"
+                stroke-dasharray="6 8"
+              />
+              <path
+                d="M 620 295 Q 650 240 680 190"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.4"
+                stroke-dasharray="6 8"
+              />
+              <path
+                d="M 680 190 Q 675 305 665 420"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.4"
+                stroke-dasharray="6 8"
+              />
+            </g>
+
+            <!-- City Labels -->
+            <g class="visual-element" style="animation-delay: 0.65s">
+              <text
+                x="205"
+                y="178"
+                text-anchor="middle"
+                font-family="'SF Mono', monospace"
+                font-size="8"
+                fill="#1e3a5f"
+                opacity="0.7"
+                font-weight="600"
+              >
+                NYC
+              </text>
+              <text
+                x="395"
+                y="163"
+                text-anchor="middle"
+                font-family="'SF Mono', monospace"
+                font-size="8"
+                fill="#1e3a5f"
+                opacity="0.7"
+                font-weight="600"
+              >
+                LHR
+              </text>
+              <text
+                x="680"
+                y="183"
+                text-anchor="middle"
+                font-family="'SF Mono', monospace"
+                font-size="8"
+                fill="#1e3a5f"
+                opacity="0.7"
+                font-weight="600"
+              >
+                TYO
+              </text>
+              <text
+                x="620"
+                y="288"
+                text-anchor="middle"
+                font-family="'SF Mono', monospace"
+                font-size="8"
+                fill="#1e3a5f"
+                opacity="0.7"
+                font-weight="600"
+              >
+                SIN
+              </text>
+              <text
+                x="510"
+                y="223"
+                text-anchor="middle"
+                font-family="'SF Mono', monospace"
+                font-size="8"
+                fill="#1e3a5f"
+                opacity="0.7"
+                font-weight="600"
+              >
+                DXB
+              </text>
+              <text
+                x="665"
+                y="413"
+                text-anchor="middle"
+                font-family="'SF Mono', monospace"
+                font-size="8"
+                fill="#1e3a5f"
+                opacity="0.7"
+                font-weight="600"
+              >
+                SYD
+              </text>
+              <text
+                x="245"
+                y="353"
+                text-anchor="middle"
+                font-family="'SF Mono', monospace"
+                font-size="8"
+                fill="#1e3a5f"
+                opacity="0.7"
+                font-weight="600"
+              >
+                GRU
+              </text>
+            </g>
+
+            <!-- Grid Lines -->
+            <g
+              class="visual-element"
+              style="animation-delay: 0.75s"
+              opacity="0.08"
+            >
+              <line
+                x1="0"
+                y1="150"
+                x2="800"
+                y2="150"
+                stroke="#b0b0b0"
+                stroke-width="0.5"
+              />
+              <line
+                x1="0"
+                y1="250"
+                x2="800"
+                y2="250"
+                stroke="#b0b0b0"
+                stroke-width="0.5"
+              />
+              <line
+                x1="0"
+                y1="350"
+                x2="800"
+                y2="350"
+                stroke="#b0b0b0"
+                stroke-width="0.5"
+              />
+              <line
+                x1="0"
+                y1="450"
+                x2="800"
+                y2="450"
+                stroke="#b0b0b0"
+                stroke-width="0.5"
+              />
+            </g>
+
+            <!-- Brand Mark -->
+            <g class="visual-element" style="animation-delay: 0.95s">
+              <circle
+                cx="730"
+                cy="560"
+                r="24"
+                fill="none"
+                stroke="#1e3a5f"
+                stroke-width="1.5"
+                opacity="0.6"
+              />
+              <text
+                x="730"
+                y="567"
+                text-anchor="middle"
+                font-family="'SF Mono', 'Monaco', monospace"
+                font-size="18"
+                font-weight="600"
+                fill="#1e3a5f"
+                opacity="0.8"
+              >
+                K
+              </text>
+            </g>
+          </svg>
+
+          <!-- Statistics Overlay -->
+          <div class="visual-stats">
+            <div class="stat-item">
+              <span class="stat-number">50K+</span>
+              <span class="stat-label">Travelers</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">180+</span>
+              <span class="stat-label">Countries</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">1M+</span>
+              <span class="stat-label">Journeys</span>
+            </div>
+            <div class="brand-mark">
+              <span class="brand-mark-letter">K</span>
+              <span class="brand-mark-text">Travel</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Linking Modal -->
+    <div id="accountLinkingModal" class="account-linking-modal">
+      <div class="account-linking-modal-content">
+        <div class="account-linking-modal-header">
+          <h3 class="account-linking-modal-title">Link Your Account</h3>
+          <p class="account-linking-modal-description">
+            An account with the email
+            <span id="linkingEmail" class="account-linking-modal-email"></span>
+            already exists. Would you like to link your
+            <span id="linkingProvider" class="account-linking-modal-email"></span>
+            account to your existing account?
+          </p>
+        </div>
+        <div class="account-linking-modal-actions">
+          <button
+            id="linkAccountBtn"
+            class="account-linking-modal-btn account-linking-modal-btn-primary"
+          >
+            Link Account
+          </button>
+          <button
+            id="cancelLinkBtn"
+            class="account-linking-modal-btn account-linking-modal-btn-secondary"
+          >
+            Cancel
+          </button>
+        </div>
+        <div id="linkingLoading" class="account-linking-modal-loading">
+          <div class="account-linking-modal-spinner"></div>
+          <span>Linking account...</span>
+        </div>
+      </div>
+    </div>
+
+    <!--
+      Authentication Page Script
+      Handles form switching, validation, API interactions, and UI state management
+    -->
+    <script>
+      // ==========================================================================
+      // DOM Element References
+      // ==========================================================================
+
+      const loginTab = document.getElementById("loginTab");
+      const registerTab = document.getElementById("registerTab");
+      const loginForm = document.getElementById("loginForm");
+      const registerForm = document.getElementById("registerForm");
+      const formContainer = document.querySelector(".form-container");
+
+      // ==========================================================================
+      // State Management
+      // ==========================================================================
+
+      let isAnimating = false; // Prevents rapid tab switching during transitions
+
+      // ==========================================================================
+      // UI Utility Functions
+      // ==========================================================================
+
+      /**
+       * Updates form container height based on active form content
+       * Ensures smooth height transitions when switching between login/register
+       */
+      function updateContainerHeight() {
+        // Don't set min-height - let container be constrained by parent
+        // This allows the form wrapper to scroll when content overflows
+        const formContainer = document.querySelector(".form-container");
+        if (formContainer) {
+          // Remove any min-height that might prevent scrolling
+          formContainer.style.minHeight = "0";
+        }
+      }
+
+      /**
+       * Switches UI to login form with smooth transition
+       * Uses CSS transitions for Swiss/Swedish precision animation
+       */
+      function switchToLogin() {
+        if (isAnimating || loginForm.classList.contains("active")) return;
+        isAnimating = true;
+
+        // Update tab visual states immediately for instant feedback
+        loginTab.classList.add("active", "text-navy");
+        loginTab.classList.remove("text-muted");
+        registerTab.classList.remove("active", "text-navy");
+        registerTab.classList.add("text-muted");
+
+        // Exit animation for register form
+        registerForm.classList.add("exiting");
+        registerForm.classList.remove("active");
+
+        // Use requestAnimationFrame for smooth transitions
+        requestAnimationFrame(() => {
+          // Wait for exit animation to complete (400ms matches CSS)
+          setTimeout(() => {
+            registerForm.classList.remove("exiting");
+
+            // Bring in login form
+            loginForm.classList.remove("exiting");
+            loginForm.classList.add("active");
+
+            // Reset animation state after transition completes
+            setTimeout(() => {
+              isAnimating = false;
+              // Check overflow after form switch
+              if (typeof checkOverflowAndEnableScrolling === "function") {
+                checkOverflowAndEnableScrolling();
+              }
+            }, 400);
+          }, 400);
+        });
+      }
+
+      /**
+       * Resets password validation visual states
+       */
+      function resetPasswordValidation() {
+        if (registerPassword) {
+          registerPassword.style.borderColor = "var(--border)";
+        }
+        if (registerConfirmPassword) {
+          registerConfirmPassword.style.borderColor = "var(--border)";
+        }
+        if (confirmPasswordFeedback) {
+          confirmPasswordFeedback.classList.remove("show");
+          confirmPasswordFeedback.classList.add("hidden");
+        }
+        const passwordRequirements = document.getElementById(
+          "passwordRequirements"
+        );
+        if (passwordRequirements) {
+          passwordRequirements.style.color = "var(--muted)";
+        }
+      }
+
+      /**
+       * Switches UI to register form with smooth transition
+       * Uses CSS transitions for Swiss/Swedish precision animation
+       */
+      function switchToRegister() {
+        if (isAnimating || registerForm.classList.contains("active")) return;
+        isAnimating = true;
+
+        // Update tab visual states immediately for instant feedback
+        registerTab.classList.add("active", "text-navy");
+        registerTab.classList.remove("text-muted");
+        loginTab.classList.remove("active", "text-navy");
+        loginTab.classList.add("text-muted");
+
+        // Exit animation for login form
+        loginForm.classList.add("exiting");
+        loginForm.classList.remove("active");
+
+        // Use requestAnimationFrame for smooth transitions
+        requestAnimationFrame(() => {
+          // Wait for exit animation to complete (400ms matches CSS)
+          setTimeout(() => {
+            loginForm.classList.remove("exiting");
+
+            // Bring in register form
+            registerForm.classList.remove("exiting");
+            registerForm.classList.add("active");
+
+            // Reset password validation states when switching to register
+            resetPasswordValidation();
+
+            // Reset animation state after transition completes
+            setTimeout(() => {
+              isAnimating = false;
+              // Check overflow after form switch
+              if (typeof checkOverflowAndEnableScrolling === "function") {
+                checkOverflowAndEnableScrolling();
+              }
+            }, 400);
+          }, 400);
+        });
+      }
+
+      // ==========================================================================
+      // Event Listeners - Tab Navigation
+      // ==========================================================================
+
+      loginTab.addEventListener("click", switchToLogin);
+      registerTab.addEventListener("click", switchToRegister);
+
+      // ==========================================================================
+      // Input Field Enhancements
+      // ==========================================================================
+
+      /**
+       * Adds subtle lift animation on input focus for better UX feedback
+       */
+      document.querySelectorAll(".form-input").forEach((input) => {
+        input.addEventListener("focus", function () {
+          this.style.transform = "translateY(-1px)";
+        });
+
+        input.addEventListener("blur", function () {
+          this.style.transform = "translateY(0)";
+        });
+      });
+
+      // ==========================================================================
+      // Login Form Handler
+      // ==========================================================================
+
+      const loginFormElement = document.getElementById("loginFormElement");
+      const loginError = document.getElementById("loginError");
+      const loginSuccess = document.getElementById("loginSuccess");
+
+      if (loginFormElement) {
+        loginFormElement.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          // Clear previous messages
+          loginError.classList.add("hidden");
+          loginSuccess.classList.add("hidden");
+
+          // Extract form values
+          const email = document.getElementById("loginEmail").value.trim();
+          const password = document.getElementById("loginPassword").value;
+          const rememberMe = document.querySelector(
+            "#loginFormElement input[type='checkbox']"
+          ).checked;
+
+          // Client-side validation
+          if (!email || !password) {
+            loginError.querySelector("span").textContent =
+              "Email and password are required";
+            loginError.classList.remove("hidden");
+            return;
+          }
+
+          try {
+            // API call to authentication endpoint
+            const response = await fetch("/auth/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              loginError.querySelector("span").textContent =
+                data.error || "Login failed";
+              loginError.classList.remove("hidden");
+              return;
+            }
+
+            // Success: Store authentication data
+            // Uses localStorage for "remember me", sessionStorage otherwise
+            const storage = rememberMe ? localStorage : sessionStorage;
+            storage.setItem("token", data.token);
+            storage.setItem("user", JSON.stringify(data.user));
+
+            // Check if there's a pending account link
+            const pendingLink = sessionStorage.getItem("pendingAccountLink");
+            if (pendingLink) {
+              // Clear the pending link flag
+              sessionStorage.removeItem("pendingAccountLink");
+              
+              // Show message about linking
+              loginSuccess.querySelector("span").textContent =
+                "Login successful! Please click the " +
+                (pendingLink === "google" ? "Google" : "Facebook") +
+                " button to link your account.";
+              loginSuccess.classList.remove("hidden");
+              
+              // Don't redirect - let user click OAuth button
+              loginFormElement.reset();
+              return;
+            }
+
+            // Show success message
+            loginSuccess.querySelector("span").textContent =
+              "Login successful! Redirecting...";
+            loginSuccess.classList.remove("hidden");
+
+            // Clear form
+            loginFormElement.reset();
+
+            // Redirect to dashboard after brief delay
+            setTimeout(() => {
+              window.location.href = "/home";
+            }, 1000);
+          } catch (error) {
+            // Network or unexpected errors
+            loginError.querySelector("span").textContent =
+              "Network error. Please try again.";
+            loginError.classList.remove("hidden");
+            console.error("Login error:", error);
+          }
+        });
+      }
+
+      // ==========================================================================
+      // Registration Form Handler
+      // ==========================================================================
+
+      const registerFormElement = document.getElementById(
+        "registerFormElement"
+      );
+      const registerError = document.getElementById("registerError");
+      const registerSuccess = document.getElementById("registerSuccess");
+      const registerPassword = document.getElementById("registerPassword");
+      const registerConfirmPassword = document.getElementById(
+        "registerConfirmPassword"
+      );
+      const confirmPasswordFeedback = document.getElementById(
+        "confirmPasswordFeedback"
+      );
+
+      // ==========================================================================
+      // Real-time Password Validation
+      // ==========================================================================
+
+      /**
+       * Validates password: at least 8 characters with numbers or symbols
+       * Returns true if valid, false otherwise
+       */
+      function validatePassword(password) {
+        if (password.length < 8) return false;
+        // Check for numbers or symbols (non-letter characters)
+        const hasNumberOrSymbol = /[^a-zA-Z]/.test(password);
+        return hasNumberOrSymbol;
+      }
+
+      /**
+       * Updates password requirements text color based on validation
+       */
+      if (registerPassword) {
+        const passwordRequirements = document.getElementById(
+          "passwordRequirements"
+        );
+
+        registerPassword.addEventListener("input", function () {
+          const password = this.value;
+          const isValid = validatePassword(password);
+
+          // Update requirements text color (not border)
+          if (passwordRequirements) {
+            if (password.length === 0) {
+              // Reset to muted when empty
+              passwordRequirements.style.color = "var(--muted)";
+            } else if (isValid) {
+              // Green text when valid
+              passwordRequirements.style.color = "#059669"; // emerald-600
+            } else {
+              // Muted when invalid
+              passwordRequirements.style.color = "var(--muted)";
+            }
+          }
+
+          // Keep border default
+          this.style.borderColor = "var(--border)";
+
+          // Also check confirm password match when password changes
+          if (
+            registerConfirmPassword &&
+            registerConfirmPassword.value.length > 0
+          ) {
+            checkPasswordMatch();
+          }
+        });
+
+        registerPassword.addEventListener("blur", function () {
+          // Keep green text on blur if valid
+          const password = this.value;
+          if (passwordRequirements) {
+            if (password.length > 0 && validatePassword(password)) {
+              passwordRequirements.style.color = "#059669";
+            } else if (password.length > 0) {
+              passwordRequirements.style.color = "var(--muted)";
+            }
+          }
+        });
+      }
+
+      /**
+       * Checks if confirm password matches password field
+       * Shows feedback if passwords don't match
+       */
+      function checkPasswordMatch() {
+        if (
+          !registerPassword ||
+          !registerConfirmPassword ||
+          !confirmPasswordFeedback
+        ) {
+          return;
+        }
+
+        const password = registerPassword.value;
+        const confirmPassword = registerConfirmPassword.value;
+
+        if (confirmPassword.length === 0) {
+          // Hide feedback when confirm password is empty
+          confirmPasswordFeedback.classList.remove("show");
+          confirmPasswordFeedback.classList.add("hidden");
+          registerConfirmPassword.style.borderColor = "var(--border)";
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          // Show error feedback when passwords don't match (CSS handles smooth animation)
+          // Remove hidden first, then add show class after a frame to trigger animation
+          confirmPasswordFeedback.classList.remove("hidden");
+          // Force reflow to ensure element is visible
+          void confirmPasswordFeedback.offsetHeight;
+          requestAnimationFrame(() => {
+            confirmPasswordFeedback.classList.add("show");
+            // Check overflow after animation completes
+            if (typeof checkOverflowAndEnableScrolling === "function") {
+              setTimeout(() => {
+                checkOverflowAndEnableScrolling();
+              }, 350); // Wait for animation to complete (300ms + 50ms buffer)
+            }
+          });
+          registerConfirmPassword.style.borderColor = "#ef4444"; // red-500
+        } else {
+          // Hide error feedback when passwords match (CSS handles smooth animation)
+          // Remove show class first to trigger collapse animation
+          if (confirmPasswordFeedback.classList.contains("show")) {
+            confirmPasswordFeedback.classList.remove("show");
+            // Wait for animation to complete before adding hidden class
+            setTimeout(() => {
+              // Only add hidden if show is still removed
+              if (!confirmPasswordFeedback.classList.contains("show")) {
+                confirmPasswordFeedback.classList.add("hidden");
+              }
+              // Check overflow after hiding
+              if (typeof checkOverflowAndEnableScrolling === "function") {
+                checkOverflowAndEnableScrolling();
+              }
+            }, 350); // Match animation duration (300ms + 50ms buffer)
+          } else {
+            // If not showing, just ensure it's hidden
+            confirmPasswordFeedback.classList.add("hidden");
+          }
+          registerConfirmPassword.style.borderColor = "var(--border)"; // default border
+        }
+      }
+
+      /**
+       * Real-time confirm password validation
+       */
+      if (registerConfirmPassword) {
+        registerConfirmPassword.addEventListener("input", checkPasswordMatch);
+        registerConfirmPassword.addEventListener("blur", checkPasswordMatch);
+      }
+
+      if (registerFormElement) {
+        registerFormElement.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          // Clear previous messages and error states
+          registerError.classList.add("hidden");
+          registerSuccess.classList.add("hidden");
+          const termsCheckboxLabel =
+            document.getElementById("termsCheckboxLabel");
+          if (termsCheckboxLabel) {
+            termsCheckboxLabel.classList.remove("error");
+          }
+
+          // Extract form values
+          const name = document.getElementById("registerName").value.trim();
+          const email = document.getElementById("registerEmail").value.trim();
+          const password = document.getElementById("registerPassword").value;
+          const confirmPassword = document.getElementById(
+            "registerConfirmPassword"
+          ).value;
+          const termsCheckbox = document.getElementById("termsCheckbox");
+
+          // Client-side validation: Terms agreement
+          if (!termsCheckbox || !termsCheckbox.checked) {
+            if (termsCheckboxLabel) {
+              termsCheckboxLabel.classList.add("error");
+            }
+            const errorSpan = registerError.querySelector("span");
+            if (errorSpan) {
+              errorSpan.textContent =
+                "You must agree to the Terms and Privacy Policy";
+            }
+            registerError.classList.remove("hidden");
+
+            // Ensure error is visible before scrolling
+            requestAnimationFrame(() => {
+              // Scroll error message into view and focus checkbox for better UX
+              registerError.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+              });
+              if (termsCheckbox) {
+                termsCheckbox.focus();
+              }
+            });
+            return;
+          }
+
+          // Client-side validation: Password match
+          if (password !== confirmPassword) {
+            registerError.querySelector("span").textContent =
+              "Passwords do not match";
+            registerError.classList.remove("hidden");
+            return;
+          }
+
+          // Client-side validation: Password requirements (8+ chars with numbers or symbols)
+          if (!validatePassword(password)) {
+            registerError.querySelector("span").textContent =
+              "Password must be at least 8 characters long with numbers or symbols";
+            registerError.classList.remove("hidden");
+            return;
+          }
+
+          try {
+            // API call to registration endpoint
+            const response = await fetch("/auth/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name, email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              registerError.querySelector("span").textContent =
+                data.error || "Registration failed";
+              registerError.classList.remove("hidden");
+              return;
+            }
+
+            // Success: Show confirmation and switch to login
+            registerSuccess.querySelector("span").textContent =
+              "Account created successfully! You can now login.";
+            registerSuccess.classList.remove("hidden");
+
+            // Clear form
+            registerFormElement.reset();
+
+            // Reset password validation states
+            resetPasswordValidation();
+
+            // Auto-switch to login form after delay
+            setTimeout(() => {
+              switchToLogin();
+            }, 2000);
+          } catch (error) {
+            // Network or unexpected errors
+            registerError.querySelector("span").textContent =
+              "Network error. Please try again.";
+            registerError.classList.remove("hidden");
+            console.error("Registration error:", error);
+          }
+        });
+      }
+
+      // ==========================================================================
+      // Terms Checkbox - Clear Error on Check
+      // ==========================================================================
+
+      const termsCheckbox = document.getElementById("termsCheckbox");
+      const termsCheckboxLabel = document.getElementById("termsCheckboxLabel");
+
+      if (termsCheckbox && termsCheckboxLabel) {
+        termsCheckbox.addEventListener("change", function () {
+          if (this.checked) {
+            termsCheckboxLabel.classList.remove("error");
+          }
+        });
+      }
+
+      // ==========================================================================
+      // Page Initialization
+      // ==========================================================================
+
+      // ==========================================================================
+      // Overflow Detection - Swiss Precision Scrolling Control
+      // ==========================================================================
+
+      /**
+       * Detects if form content overflows viewport and enables scrolling only if needed
+       * Swiss Precision: No scrolling unless absolutely necessary
+       */
+      function checkOverflowAndEnableScrolling() {
+        const activeForm = document.querySelector(".form-wrapper.active");
+        const formContainer = document.querySelector(".form-container");
+        const fadeIn = document.querySelector(".fade-in");
+
+        if (!activeForm || !formContainer || !fadeIn) return;
+
+        // Wait for layout to settle
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            // Force a reflow to get accurate measurements
+            void activeForm.offsetHeight;
+            void formContainer.offsetHeight;
+            void fadeIn.offsetHeight;
+
+            // Get the actual container height
+            const containerHeight = formContainer.clientHeight;
+
+            // CRITICAL: Set a fixed height constraint so scrolling can work
+            // Without a height constraint, flex: 1 will just grow and never scroll
+            if (containerHeight > 0) {
+              activeForm.style.height = containerHeight + "px";
+              activeForm.style.maxHeight = containerHeight + "px";
+              activeForm.style.minHeight = "0";
+              activeForm.style.flexShrink = "0";
+            }
+
+            // Always enable scrolling - browser will show scrollbar when content overflows
+            activeForm.style.overflowY = "auto";
+            activeForm.style.overflowX = "hidden";
+
+            // Force another reflow after setting height
+            void activeForm.offsetHeight;
+          });
+        }, 50);
+      }
+
+      // ==========================================================================
+      // OAuth Button Handlers
+      // ==========================================================================
+
+      const googleLoginBtn = document.getElementById("googleLoginBtn");
+      const facebookLoginBtn = document.getElementById("facebookLoginBtn");
+      const googleRegisterBtn = document.getElementById("googleRegisterBtn");
+      const facebookRegisterBtn = document.getElementById("facebookRegisterBtn");
+
+      /**
+       * Gets user's timezone in GMT format
+       * @returns {string} Timezone in GMT format (e.g., "GMT+8")
+       */
+      function getUserTimezone() {
+        try {
+          // Calculate GMT offset from browser's timezone
+          const now = new Date();
+          // getTimezoneOffset returns offset in minutes, negative means ahead of UTC
+          // So GMT+8 (Singapore) would be -480 minutes
+          const offsetMinutes = now.getTimezoneOffset();
+          // Convert to hours (note: offset is reversed, so we negate it)
+          const offsetHours = -offsetMinutes / 60;
+          const sign = offsetHours >= 0 ? '+' : '-';
+          const hours = Math.abs(offsetHours);
+          
+          return `GMT${sign}${Math.floor(hours)}`;
+        } catch (error) {
+          console.error("Error detecting timezone:", error);
+          return "GMT+8"; // Default to Singapore
+        }
+      }
+
+      /**
+       * Handles OAuth button clicks
+       * Checks if there's a pending account link and includes it in the URL
+       * Stores user timezone in cookie for OAuth callback
+       */
+      function handleOAuthClick(provider) {
+        // Store timezone in cookie for OAuth callback
+        const timezone = getUserTimezone();
+        document.cookie = `user_timezone=${timezone}; path=/; max-age=600; SameSite=Lax`; // 10 minutes
+        
+        const pendingLink = sessionStorage.getItem("pendingAccountLink");
+        if (pendingLink === provider) {
+          // Include link parameter to indicate this is for account linking
+          window.location.href = `/auth/${provider}?link=true`;
+        } else {
+          window.location.href = `/auth/${provider}`;
+        }
+      }
+
+      if (googleLoginBtn) {
+        googleLoginBtn.addEventListener("click", () => {
+          handleOAuthClick("google");
+        });
+      }
+
+      if (facebookLoginBtn) {
+        facebookLoginBtn.addEventListener("click", () => {
+          handleOAuthClick("facebook");
+        });
+      }
+
+      if (googleRegisterBtn) {
+        googleRegisterBtn.addEventListener("click", () => {
+          handleOAuthClick("google");
+        });
+      }
+
+      if (facebookRegisterBtn) {
+        facebookRegisterBtn.addEventListener("click", () => {
+          handleOAuthClick("facebook");
+        });
+      }
+
+      // ==========================================================================
+      // Account Linking Modal
+      // ==========================================================================
+
+      const accountLinkingModal = document.getElementById("accountLinkingModal");
+      const linkingEmail = document.getElementById("linkingEmail");
+      const linkingProvider = document.getElementById("linkingProvider");
+      const linkAccountBtn = document.getElementById("linkAccountBtn");
+      const cancelLinkBtn = document.getElementById("cancelLinkBtn");
+      const linkingLoading = document.getElementById("linkingLoading");
+
+      let pendingLinkingData = null;
+
+      /**
+       * Shows the account linking modal
+       */
+      function showAccountLinkingModal(email, provider) {
+        if (!accountLinkingModal || !linkingEmail || !linkingProvider) return;
+
+        const providerName =
+          provider === "google" ? "Google" : provider === "facebook" ? "Facebook" : provider;
+
+        linkingEmail.textContent = email;
+        linkingProvider.textContent = providerName;
+
+        // Store linking data for later use
+        pendingLinkingData = { email, provider };
+
+        // Show modal
+        accountLinkingModal.classList.add("active");
+
+        // Clear URL parameters to clean up the URL
+        const url = new URL(window.location);
+        url.searchParams.delete("error");
+        url.searchParams.delete("linkingRequired");
+        url.searchParams.delete("provider");
+        url.searchParams.delete("email");
+        window.history.replaceState({}, "", url);
+      }
+
+      /**
+       * Hides the account linking modal
+       */
+      function hideAccountLinkingModal() {
+        if (accountLinkingModal) {
+          accountLinkingModal.classList.remove("active");
+          pendingLinkingData = null;
+        }
+        if (linkingLoading) {
+          linkingLoading.classList.remove("active");
+        }
+      }
+
+      /**
+       * Handles account linking when user confirms
+       * User needs to log in first, then re-initiate OAuth to link
+       */
+      async function handleAccountLinking() {
+        if (!pendingLinkingData) return;
+
+        const { provider } = pendingLinkingData;
+
+        // Check if user is logged in
+        const token =
+          localStorage.getItem("token") || sessionStorage.getItem("token");
+
+        if (!token) {
+          // User needs to log in first
+          hideAccountLinkingModal();
+          
+          // Show message in login form
+          const loginError = document.getElementById("loginError");
+          if (loginError) {
+            loginError.querySelector("span").textContent =
+              "Please log in with your email and password first, then click the " +
+              (provider === "google" ? "Google" : "Facebook") +
+              " button again to link your account.";
+            loginError.classList.remove("hidden");
+          }
+          
+          // Switch to login form
+          if (typeof switchToLogin === "function") {
+            switchToLogin();
+          }
+          
+          // Store linking intent for after login
+          sessionStorage.setItem("pendingAccountLink", provider);
+          
+          return;
+        }
+
+        // User is logged in - re-initiate OAuth for linking
+        // The backend will detect they're logged in and link the account
+        hideAccountLinkingModal();
+        
+        // Store linking intent
+        sessionStorage.setItem("pendingAccountLink", provider);
+        
+        // Redirect to OAuth provider
+        window.location.href = `/auth/${provider}?link=true`;
+      }
+
+      // Event listeners for account linking modal
+      if (linkAccountBtn) {
+        linkAccountBtn.addEventListener("click", handleAccountLinking);
+      }
+
+      if (cancelLinkBtn) {
+        cancelLinkBtn.addEventListener("click", hideAccountLinkingModal);
+      }
+
+      // Close modal when clicking outside
+      if (accountLinkingModal) {
+        accountLinkingModal.addEventListener("click", (e) => {
+          if (e.target === accountLinkingModal) {
+            hideAccountLinkingModal();
+          }
+        });
+      }
+
+      // ==========================================================================
+      // URL Parameter Handling
+      // ==========================================================================
+
+      /**
+       * Checks URL parameters for errors and account linking requirements
+       */
+      function checkURLParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get("error");
+        const linkingRequired = urlParams.get("linkingRequired");
+        const provider = urlParams.get("provider");
+        const email = urlParams.get("email");
+
+        // Handle account linking requirement
+        if (linkingRequired === "true" && provider && email) {
+          showAccountLinkingModal(email, provider);
+          return;
+        }
+
+        // Handle error messages
+        if (error) {
+          const decodedError = decodeURIComponent(error);
+          
+          // Show error in appropriate form
+          const loginError = document.getElementById("loginError");
+          const registerError = document.getElementById("registerError");
+
+          // Determine which form to show error in
+          // If it's an account linking error, show in login form
+          if (decodedError.includes("link") || decodedError.includes("already exists")) {
+            if (loginError) {
+              loginError.querySelector("span").textContent = decodedError;
+              loginError.classList.remove("hidden");
+            }
+            // Switch to login form
+            if (typeof switchToLogin === "function") {
+              switchToLogin();
+            }
+          } else {
+            // Show in active form
+            const activeForm = document.querySelector(".form-wrapper.active");
+            if (activeForm === loginForm && loginError) {
+              loginError.querySelector("span").textContent = decodedError;
+              loginError.classList.remove("hidden");
+            } else if (activeForm === registerForm && registerError) {
+              registerError.querySelector("span").textContent = decodedError;
+              registerError.classList.remove("hidden");
+            }
+          }
+
+          // Clean up URL
+          const url = new URL(window.location);
+          url.searchParams.delete("error");
+          window.history.replaceState({}, "", url);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // ============================================================================
+        // AUTH REDIRECT - Server-side handles authentication redirects
+        // ============================================================================
+        // Note: Server-side middleware handles checking if user is already authenticated
+
+        // Check URL parameters first (for OAuth callbacks and errors)
+        checkURLParameters();
+
+        // Set initial container height
+        updateContainerHeight();
+
+        // Check overflow and enable scrolling conditionally
+        checkOverflowAndEnableScrolling();
+
+        // Staggered animation for form inputs on page load
+        const inputs = loginForm.querySelectorAll(".form-input");
+        inputs.forEach((input, index) => {
+          input.style.opacity = "0";
+          input.style.transform = "translateY(10px)";
+
+          setTimeout(() => {
+            input.style.transition = "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)";
+            input.style.opacity = "1";
+            input.style.transform = "translateY(0)";
+          }, 300 + index * 50);
+        });
+
+        // Update height on window resize and zoom
+        let resizeTimeout;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            updateContainerHeight();
+            // Recheck overflow after resize/zoom
+            setTimeout(checkOverflowAndEnableScrolling, 200);
+          }, 150);
+        });
+
+        // Also check on orientation change
+        window.addEventListener("orientationchange", () => {
+          setTimeout(() => {
+            updateContainerHeight();
+            checkOverflowAndEnableScrolling();
+          }, 300);
+        });
+
+        // Periodic check to update height constraints on zoom changes
+        let overflowCheckInterval = setInterval(() => {
+          const activeForm = document.querySelector(".form-wrapper.active");
+          const formContainer = document.querySelector(".form-container");
+          if (activeForm && formContainer) {
+            const containerHeight = formContainer.clientHeight;
+            if (containerHeight > 0) {
+              activeForm.style.height = containerHeight + "px";
+              activeForm.style.maxHeight = containerHeight + "px";
+              activeForm.style.minHeight = "0";
+            }
+            // Always ensure scrolling is enabled
+            activeForm.style.overflowY = "auto";
+            activeForm.style.overflowX = "hidden";
+          }
+        }, 200);
+
+        // Clear interval when page unloads
+        window.addEventListener("beforeunload", () => {
+          if (overflowCheckInterval) {
+            clearInterval(overflowCheckInterval);
+          }
+        });
+
+        // Initialize Lucide icons (loaded dynamically)
+        function initLucideIcons() {
+          if (window.lucide?.createIcons) {
+            window.lucide.createIcons();
+          }
+        }
+
+        // Try immediate initialization if already loaded
+        initLucideIcons();
+
+        // Load and initialize Lucide icons
+        const lucideScript = document.createElement("script");
+        lucideScript.src = "./lucide.min.js";
+        lucideScript.onload = initLucideIcons;
+        document.body.appendChild(lucideScript);
+      });
+    </script>
+  </body>
+</html>

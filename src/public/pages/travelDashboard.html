@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel Dashboard</title>
+    <link rel="stylesheet" href="../styles/output.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="../vendor/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      :root {
+        --ink: #060606;
+        --canvas: #f3f1eb;
+        --sheet: #fefdf9;
+        --border: #dcd6c8;
+        --muted: #6d7177;
+        --navy: #1e3a5f;
+        --navy-light: #2d4f7c;
+        --accent: #38bdf8;
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+      }
+      
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--canvas);
+        color: var(--ink);
+      }
+      
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Space Grotesk', sans-serif;
+      }
+      
+      .stat-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+      }
+      
+      .chart-container {
+        position: relative;
+        height: 200px;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <!-- Navigation -->
+  <body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-sheet border-b border-border">
+      <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <a href="/main_dashboard" class="text-navy hover:text-navy-light flex items-center gap-2">
+              <i data-lucide="arrow-left" class="w-5 h-5"></i>
+              <span class="font-medium">Back to Trips</span>
+            </a>
+          </div>
+          <a href="/home.html" class="text-muted hover:text-ink flex items-center gap-2">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span>Home</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-8">
+      <!-- Header Section -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-2">
+          <h1 id="tripTitle" class="text-4xl font-bold">Loading...</h1>
+          <div class="flex gap-2">
+            <button id="packingListBtn" class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-navy-light transition-colors flex items-center gap-2">
+              <i data-lucide="package" class="w-5 h-5"></i>
+              <span>Packing List</span>
+            </button>
+            <button id="tripMembersBtn" class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-navy-light transition-colors flex items-center gap-2">
+              <i data-lucide="users" class="w-5 h-5"></i>
+              <span>Members</span>
+            </button>
+            <button class="p-2 bg-sheet border border-border rounded-lg hover:bg-gray-50 transition-colors">
+              <i data-lucide="settings" class="w-5 h-5"></i>
+            </button>
+            <button class="p-2 bg-sheet border border-border rounded-lg hover:bg-gray-50 transition-colors">
+              <i data-lucide="share-2" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 text-muted">
+          <div class="flex items-center gap-1">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span id="tripDetails" class="text-sm">—</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+            <span id="tripCities" class="text-sm">—</span>
+          </div>
+          <div id="tripStatusBadge" class="flex items-center gap-1"></div>
+        </div>
+      </div>
+
+      <!-- Trip Status and Planning -->
+      <div class="bg-sheet border border-border rounded-lg p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-semibold">Trip Status</h3>
+          <div id="statusControls" class="flex items-center gap-2">
+            <select id="statusDropdown" class="px-3 py-2 bg-canvas border border-border rounded-lg text-sm disabled:opacity-50">
+              <option value="PLANNING">Planning</option>
+              <option value="PLANNING_COMPLETE">Ready to Go</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+            <button id="updateStatusBtn" class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-navy-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              Update Status
+            </button>
+          </div>
+        </div>
+        
+        <!-- Planning Progress -->
+        <div id="planningSection" class="hidden">
+          <div class="mb-4">
+            <div class="flex justify-between text-sm text-muted mb-2">
+              <span>Trip Progress</span>
+              <span id="planningProgressPercent">0%</span>
+            </div>
+            <div class="w-full bg-canvas rounded-full h-3">
+              <div id="planningProgressBar" class="bg-navy h-3 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="stat-card bg-sheet border border-border rounded-lg p-6">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-muted">Total Cost</span>
+            <i data-lucide="dollar-sign" class="w-5 h-5 text-navy"></i>
+          </div>
+          <p id="totalCost" class="text-3xl font-bold text-navy">—</p>
+        </div>
+        <div class="stat-card bg-sheet border border-border rounded-lg p-6">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-muted">Trip Duration</span>
+            <i data-lucide="clock" class="w-5 h-5 text-navy"></i>
+          </div>
+          <p id="tripDuration" class="text-3xl font-bold text-navy">—</p>
+        </div>
+        <div class="stat-card bg-sheet border border-border rounded-lg p-6">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-muted">Distance</span>
+            <i data-lucide="navigation" class="w-5 h-5 text-navy"></i>
+          </div>
+          <p id="distanceTravelled" class="text-3xl font-bold text-navy">—</p>
+        </div>
+        <div class="stat-card bg-sheet border border-border rounded-lg p-6">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-muted">Travel Time</span>
+            <i data-lucide="plane" class="w-5 h-5 text-navy"></i>
+          </div>
+          <p id="hoursTravelling" class="text-3xl font-bold text-navy">—</p>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Budget Overview -->
+        <div class="lg:col-span-2 bg-sheet border border-border rounded-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-semibold">Budget Overview</h3>
+            <button id="viewFullBudgetBtn" class="px-4 py-2 bg-navy text-white rounded-lg hover:bg-navy-light transition-colors flex items-center gap-2">
+              <i data-lucide="wallet" class="w-4 h-4"></i>
+              <span>View Full Budget</span>
+            </button>
+          </div>
+          <div class="chart-container mb-4">
+            <canvas id="categoryChart"></canvas>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="border-b border-border">
+                <tr class="text-left text-sm text-muted">
+                  <th class="pb-2">Category</th>
+                  <th class="pb-2 text-right">Allocated</th>
+                  <th class="pb-2 text-right">Actual</th>
+                  <th class="pb-2 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody id="categoryTableBody" class="text-sm">
+                <tr>
+                  <td colspan="4" class="py-4 text-center text-muted">No budget data</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Weather Card -->
+        <div class="bg-sheet border border-border rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-4">Weather</h3>
+          <div id="weatherCurrent" class="mb-4">
+            <div class="text-center py-8">
+              <i data-lucide="cloud" class="w-12 h-12 mx-auto mb-2 text-muted"></i>
+              <p class="text-muted">No weather data</p>
+            </div>
+          </div>
+          <div id="weatherOutlook"></div>
+        </div>
+      </div>
+
+      <!-- Activity Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Steps Chart -->
+        <div class="bg-sheet border border-border rounded-lg p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold">Daily Activity</h3>
+            <button id="addStepsBtn" class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors flex items-center gap-2">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              Add Steps
+            </button>
+          </div>
+          <div class="chart-container mb-4">
+            <canvas id="stepsChart"></canvas>
+          </div>
+          <div id="stepsList" class="space-y-2">
+            <p class="text-sm text-muted">No activity data</p>
+          </div>
+        </div>
+
+        <!-- Personality Summary -->
+        <div class="bg-sheet border border-border rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-4">Traveler Profile</h3>
+          <div id="personalityContent">
+            <div class="mb-4">
+              <p id="personalitySummary" class="text-muted mb-2">No profile data</p>
+            </div>
+            <div class="mb-4">
+              <p class="text-sm font-medium mb-2">Highlights</p>
+              <div id="personalityHighlights" class="flex flex-wrap gap-2">
+                <span class="text-xs text-muted">None yet</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-sm font-medium mb-2">Growth Areas</p>
+              <div id="personalityGrowth" class="flex flex-wrap gap-2">
+                <span class="text-xs text-muted">None yet</span>
+              </div>
+            </div>
+          </div>
+          <div id="undefinedTravelerPrompt" class="hidden text-center py-4">
+            <div class="mb-4">
+              <i data-lucide="help-circle" class="w-12 h-12 mx-auto mb-3 text-muted"></i>
+              <p class="text-lg font-semibold mb-2">Undefined Traveler</p>
+              <p class="text-sm text-muted mb-4">Take our quiz to discover your traveler personality and get personalised recommendations!</p>
+            </div>
+            <button id="takeQuizBtn" class="px-6 py-3 bg-navy text-white rounded-lg hover:bg-navy-light transition-colors flex items-center gap-2 mx-auto">
+              <i data-lucide="compass" class="w-5 h-5"></i>
+              <span>Take Quiz</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Smart Insights -->
+        <div class="bg-sheet border border-border rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="lightbulb" class="w-5 h-5"></i>
+            Smart Insights
+          </h3>
+          <ul id="insightsList" class="space-y-2 text-sm">
+            <li class="text-muted">No insights available</li>
+          </ul>
+        </div>
+
+        <!-- Alerts -->
+        <div class="bg-sheet border border-border rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            Alerts
+          </h3>
+          <ul id="alertsList" class="space-y-2">
+            <li class="text-sm text-muted">No alerts</li>
+          </ul>
+        </div>
+
+        <!-- Attractions -->
+        <div class="bg-sheet border border-border rounded-lg p-6">
+          <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="star" class="w-5 h-5"></i>
+            Top Attractions
+          </h3>
+          <ul id="attractionsList" class="space-y-2 text-sm">
+            <li class="text-muted">No attractions saved</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Steps Modal -->
+    <div id="stepsModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-sm">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Daily Steps</h3>
+            <button type="button" id="closeModalBtn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+          </div>
+          <form id="stepsForm">
+            <div class="mb-4">
+              <label for="stepDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date</label>
+              <input type="date" id="stepDate" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-6">
+              <label for="stepCount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Steps</label>
+              <input type="number" id="stepCount" min="0" required placeholder="Enter step count" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex gap-3 justify-end" style="margin-top: 24px;">
+              <button type="button" id="cancelModalBtn" style="padding: 10px 24px; border: 1px solid #d1d5db; border-radius: 6px; background: white; color: #374151; font-weight: 500;">
+                Cancel
+              </button>
+              <button type="submit" id="confirmStepsBtn" style="padding: 10px 24px; background-color: #16a34a; color: white; border-radius: 6px; font-weight: 500; border: none; cursor: pointer;">
+                Confirm
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/pages/travelDashboard.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

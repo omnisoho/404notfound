@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Home — Kōsui</title>
+    <link rel="stylesheet" href="../styles/output.css" />
+    <link rel="stylesheet" href="../styles/home.css" />
+  </head>
+  <body class="min-h-screen bg-canvas font-sans text-ink antialiased">
+    <!-- Header -->
+    <header
+      id="mainHeader"
+      class="fade-in-initial border-b-2 border-ink/10"
+    >
+        <div class="flex items-baseline gap-3">
+          <p class="font-display text-2xl font-medium tracking-tight">Kōsui</p>
+        </div>
+        <nav
+          class="flex items-center justify-center gap-2 text-[0.65rem] font-medium uppercase tracking-[0.4em]"
+        >
+          <a
+            href="#dashboard"
+            class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+            >Home</a
+          >
+          <a
+            href="/main_dashboard"
+            class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+            >Dashboard</a
+          >
+          <a
+            href="#trips"
+            class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+            >Trips</a
+          >
+          <a
+            href="#tools"
+            class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+            >Tools</a
+          >
+        </nav>
+        <div class="relative">
+          <div
+            id="userChip"
+            class="flex cursor-pointer items-center gap-2.5 border-l-2 border-ink/10 pl-6"
+          >
+            <div class="text-right leading-tight">
+              <p id="userName" class="text-sm font-semibold">Explorer</p>
+              <small
+                class="text-[0.65rem] uppercase tracking-[0.3em] text-muted"
+              >
+                <span id="userTimezone">GMT+8</span>
+              </small>
+            </div>
+            <div
+              id="userAvatar"
+              class="flex h-8 w-8 items-center justify-center border-2 border-navy bg-navy font-mono text-xs font-bold text-sheet"
+            >
+              EX
+            </div>
+          </div>
+
+          <!-- User Dropdown Menu -->
+          <div
+            id="userDropdown"
+            class="invisible absolute right-0 top-full z-[100] mt-3 opacity-0"
+          >
+            <div>
+              <div
+                class="dropdown-item"
+                data-action="profile"
+              >
+                <i data-lucide="user"></i>
+                <span>Profile</span>
+              </div>
+              <div
+                class="dropdown-item"
+                data-action="settings"
+              >
+                <i data-lucide="settings"></i>
+                <span>Settings</span>
+              </div>
+              <div
+                id="adminDropdownItem"
+                class="dropdown-item hidden"
+                data-action="admin"
+              >
+                <i data-lucide="shield"></i>
+                <span>Admin</span>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div>
+              <div
+                class="dropdown-item"
+                data-action="logout"
+              >
+                <i data-lucide="log-out"></i>
+                <span>Sign Out</span>
+              </div>
+            </div>
+          </div>
+      </header>
+
+    <div class="mx-auto max-w-7xl space-y-8 px-5 pb-6" style="margin-top: clamp(5rem, 8vh, 6rem); padding-top: 2rem;">
+      <!-- Dropdown backdrop -->
+      <div id="userDropdownBackdrop" class="fixed inset-0 z-50 hidden"></div>
+
+      <!-- Welcome Back Section -->
+      <section class="mb-6">
+        <div class="flex items-baseline gap-3">
+          <p class="text-xs font-medium uppercase tracking-[0.4em] text-muted">Welcome back</p>
+          <h2 class="font-display text-2xl font-semibold tracking-tight text-ink">
+            <span id="heroUserName">Explorer</span>
+          </h2>
+        </div>
+      </section>
+
+      <!-- Quick Stats -->
+      <section
+        class="scroll-reveal delay-100 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        <article class="stat-card space-y-2 border border-border bg-sheet p-5">
+          <p class="text-[0.65rem] uppercase tracking-[0.4em] text-muted">
+            Trips Planned
+          </p>
+          <p id="statTotalTrips" class="font-display text-3xl font-semibold">
+            0
+          </p>
+        </article>
+        <article class="stat-card space-y-2 border border-border bg-sheet p-5">
+          <p class="text-[0.65rem] uppercase tracking-[0.4em] text-muted">
+            Active
+          </p>
+          <p id="statActiveTrips" class="font-display text-3xl font-semibold">
+            0
+          </p>
+        </article>
+        <article class="stat-card space-y-2 border border-border bg-sheet p-5">
+          <p class="text-[0.65rem] uppercase tracking-[0.4em] text-muted">
+            Budget Tracked
+          </p>
+          <p id="statBudget" class="font-display text-3xl font-semibold">$0</p>
+        </article>
+        <article class="stat-card space-y-2 border border-border bg-sheet p-5">
+          <p class="text-[0.65rem] uppercase tracking-[0.4em] text-muted">
+            Countries
+          </p>
+          <p id="statCountries" class="font-display text-3xl font-semibold">
+            0
+          </p>
+        </article>
+      </section>
+
+      <!-- Active Flights -->
+      <section id="flights" class="scroll-reveal delay-200">
+        <div class="mb-8 flex items-end justify-between border-b border-border pb-4">
+          <div>
+            <p class="text-xs font-medium uppercase tracking-[0.4em] text-muted mb-2">
+              LIVE TRACKING
+            </p>
+            <h2 class="font-display text-2xl font-semibold tracking-tight text-ink">
+              Your Flights
+            </h2>
+            <p class="text-xs text-muted mt-2" style="font-size: 0.75rem; color: #6d7177; margin-top: 0.5rem;">
+              <i data-lucide="clock" class="w-3 h-3 inline-block mr-1" style="width: 0.75rem; height: 0.75rem; margin-right: 0.25rem; vertical-align: text-bottom;"></i>
+              All flight times are shown in local airport time (departure airport for takeoff, arrival airport for landing)
+            </p>
+          </div>
+          <button
+            id="addFlightBtn"
+            class="border border-navy bg-navy px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-sheet transition-all duration-300 hover:bg-transparent hover:text-navy"
+          >
+            ADD FLIGHT
+          </button>
+        </div>
+        <div id="activeFlightsList">
+          <!-- Flights will be dynamically inserted here -->
+        </div>
+      </section>
+
+      <!-- Active Trips -->
+      <section id="trips" class="scroll-reveal delay-300 space-y-6">
+        <div class="flex items-end justify-between border-b border-border pb-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-muted">
+              Your journeys
+            </p>
+            <h2 class="mt-1 font-display text-2xl font-semibold">
+              Active Trips
+            </h2>
+          </div>
+          <button
+            id="newTripBtn"
+            class="border border-navy bg-navy px-4 py-2 text-xs uppercase tracking-[0.3em] text-white  transition-all duration-300 hover:bg-transparent hover:text-navy"
+          >
+            New Trip
+          </button>
+        </div>
+        <div
+          id="activeTripsList"
+          class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+        >
+          <!-- Trips will be dynamically inserted here -->
+          <div
+            class="trip-card border border-dashed border-border bg-sheet/50 p-8 text-center"
+          >
+            <i data-lucide="map" class="mx-auto mb-3 h-8 w-8 text-muted"></i>
+            <p class="text-sm text-muted">
+              No active trips. Start planning your next adventure.
+            </p>
+            <button
+              id="startPlanningBtn"
+              class="mt-4 text-xs uppercase tracking-wider text-ink underline hover:no-underline"
+            >
+              Create First Trip
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section id="quick-actions" class="scroll-reveal delay-300 space-y-6">
+        <div class="border-b border-border pb-4">
+          <p class="text-xs uppercase tracking-[0.4em] text-muted">
+            Quick access
+          </p>
+          <h2 class="mt-1 font-display text-2xl font-semibold">
+            Quick Actions
+          </h2>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <button
+            id="newTripQuickBtn"
+            class="group flex flex-col items-start gap-3 border border-border bg-sheet p-5 text-left transition-all duration-300 hover:border-navy/40 hover:shadow-md"
+          >
+            <div class="flex h-10 w-10 items-center justify-center border border-border bg-white">
+              <i data-lucide="plus" class="h-5 w-5 text-ink"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink mb-1">New Trip</h3>
+              <p class="text-xs text-muted leading-relaxed">
+                Start planning your next adventure
+              </p>
+            </div>
+          </button>
+
+          <button
+            id="addFlightQuickBtn"
+            class="group flex flex-col items-start gap-3 border border-border bg-sheet p-5 text-left transition-all duration-300 hover:border-navy/40 hover:shadow-md"
+          >
+            <div class="flex h-10 w-10 items-center justify-center border border-border bg-white">
+              <i data-lucide="plane" class="h-5 w-5 text-ink"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink mb-1">Add Flight</h3>
+              <p class="text-xs text-muted leading-relaxed">
+                Track a new flight booking
+              </p>
+            </div>
+          </button>
+
+          <button
+            id="viewAllTripsBtn"
+            class="group flex flex-col items-start gap-3 border border-border bg-sheet p-5 text-left transition-all duration-300 hover:border-navy/40 hover:shadow-md"
+          >
+            <div class="flex h-10 w-10 items-center justify-center border border-border bg-white">
+              <i data-lucide="map" class="h-5 w-5 text-ink"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink mb-1">All Trips</h3>
+              <p class="text-xs text-muted leading-relaxed">
+                View your complete travel history
+              </p>
+            </div>
+          </button>
+
+          <button
+            id="exploreBtn"
+            class="group flex flex-col items-start gap-3 border border-border bg-sheet p-5 text-left transition-all duration-300 hover:border-navy/40 hover:shadow-md"
+          >
+            <div class="flex h-10 w-10 items-center justify-center border border-border bg-white">
+              <i data-lucide="compass" class="h-5 w-5 text-ink"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-ink mb-1">Explore</h3>
+              <p class="text-xs text-muted leading-relaxed">
+                Discover new destinations
+              </p>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- Footer CTA -->
+      <section class="scroll-reveal delay-400 border-t border-border pt-8">
+        <div class="grid gap-8 md:grid-cols-2">
+          <div class="space-y-4">
+            <p class="text-xs uppercase tracking-[0.4em] text-muted">
+              Getting started
+            </p>
+            <h3 class="font-display text-2xl font-semibold">New to Kōsui?</h3>
+            <p class="text-sm leading-relaxed text-muted">
+              Take the 5-minute personality quiz to unlock smart recommendations
+              and personalized itineraries.
+            </p>
+            <button
+              id="quizCta"
+              class="border border-navy bg-navy px-5 py-3 text-xs uppercase tracking-[0.3em] text-white transition hover:bg-navy/90"
+            >
+              Start Quiz
+            </button>
+          </div>
+          <div class="space-y-4">
+            <p class="text-xs uppercase tracking-[0.4em] text-muted">
+              Need help?
+            </p>
+            <h3 class="font-display text-2xl font-semibold">
+              Explore Features
+            </h3>
+            <p class="text-sm leading-relaxed text-muted">
+              Browse our planning tools, watch tutorial videos, or check the
+              documentation.
+            </p>
+            <button
+              id="helpCta"
+              class="border border-border px-5 py-3 text-xs uppercase tracking-[0.3em] transition hover:bg-navy/5"
+            >
+              Learn More
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="scroll-reveal delay-500 border-t border-border bg-sheet" style="margin-top: 8rem;">
+      <div class="mx-auto max-w-7xl px-8 py-16">
+        <!-- Main Footer Content -->
+        <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 3rem;">
+          <!-- Brand Column - Spans 4 columns -->
+          <div class="footer-section" style="grid-column: span 4;">
+            <div class="mb-6">
+              <p class="font-display text-lg font-semibold tracking-tight text-ink mb-2">
+                Kōsui
+              </p>
+              <p class="text-[0.6875rem] uppercase tracking-[0.35em] text-muted font-medium">
+                Travel Intelligence
+              </p>
+            </div>
+            <p class="text-xs leading-relaxed text-muted mb-6" style="line-height: 1.75; max-width: 20rem;">
+              Personality-driven itineraries. Live flight intelligence. Premium hotel curation. Complete travel intelligence platform.
+            </p>
+            <div class="flex gap-3">
+              <a
+                href="#"
+                class="footer-social-link flex h-10 w-10 items-center justify-center border border-border bg-canvas"
+              >
+                <i data-lucide="twitter" class="h-4 w-4"></i>
+              </a>
+              <a
+                href="#"
+                class="footer-social-link flex h-10 w-10 items-center justify-center border border-border bg-canvas"
+              >
+                <i data-lucide="instagram" class="h-4 w-4"></i>
+              </a>
+              <a
+                href="#"
+                class="footer-social-link flex h-10 w-10 items-center justify-center border border-border bg-canvas"
+              >
+                <i data-lucide="linkedin" class="h-4 w-4"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Product Column - Spans 3 columns -->
+          <div class="footer-section" style="grid-column: span 3;">
+            <p class="text-[0.6875rem] font-semibold uppercase tracking-[0.35em] text-ink mb-5">
+              Product
+            </p>
+            <nav style="display: block;">
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Features</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Pricing</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Roadmap</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Changelog</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block;">API Docs</a></div>
+            </nav>
+          </div>
+
+          <!-- Company Column - Spans 2 columns -->
+          <div class="footer-section" style="grid-column: span 2;">
+            <p class="text-[0.6875rem] font-semibold uppercase tracking-[0.35em] text-ink mb-5">
+              Company
+            </p>
+            <nav style="display: block;">
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">About</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Blog</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Careers</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Press Kit</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block;">Contact</a></div>
+            </nav>
+          </div>
+
+          <!-- Legal Column - Spans 3 columns -->
+          <div class="footer-section" style="grid-column: span 3;">
+            <p class="text-[0.6875rem] font-semibold uppercase tracking-[0.35em] text-ink mb-5">
+              Legal
+            </p>
+            <nav style="display: block;">
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Privacy</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Terms</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Security</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block; margin-bottom: 0.75rem;">Cookies</a></div>
+              <div><a href="#" class="footer-link text-xs text-muted hover:text-ink" style="display: inline-block;">Licenses</a></div>
+            </nav>
+          </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="border-t border-border mt-16 pt-6">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <p class="text-[0.6875rem] text-muted">
+              © 2025 Kōsui. All rights reserved.
+            </p>
+            <div class="flex items-center gap-6">
+              <span class="text-[0.6875rem] uppercase tracking-[0.25em] text-muted font-medium">Version 1.0.0</span>
+              <span class="hidden md:inline text-muted" style="opacity: 0.2;">|</span>
+              <span class="text-[0.6875rem] uppercase tracking-[0.25em] text-muted font-medium">Built with Precision</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Flight Search Modal (Step 1: Search by flight number and date) -->
+    <div
+      id="flightSearchModal"
+      class="fixed inset-0 z-[9999] flex items-center justify-center bg-ink/95 opacity-0 transition-opacity duration-300"
+      style="pointer-events: none"
+    >
+      <div
+        class="relative mx-4 w-full max-w-2xl overflow-visible border-2 border-border bg-sheet shadow-2xl"
+      >
+        <div class="border-b border-border bg-sheet px-8 py-6">
+          <div class="flex items-center justify-between">
+            <h2 class="font-display text-2xl font-semibold tracking-tight">Search Flight</h2>
+            <button
+              id="closeFlightSearchModal"
+              class="flex h-8 w-8 items-center justify-center border border-border transition hover:border-navy hover:bg-navy hover:text-sheet"
+            >
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-8 py-6 space-y-6">
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-ink">
+              Flight Number
+            </label>
+            <input
+              type="text"
+              id="flightSearchNumber"
+              placeholder="e.g., BA416 or BA 416"
+              class="w-full border border-border bg-sheet px-4 py-3 text-ink placeholder:text-muted focus:border-navy focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-ink">
+              Flight Date
+            </label>
+            <div class="flex gap-2">
+              <div class="flex-1 relative" id="flightDateInputContainer">
+                <input
+                  type="text"
+                  id="flightSearchDate"
+                  readonly
+                  placeholder="Select date"
+                  class="w-full border border-border bg-sheet px-4 py-3 text-ink cursor-pointer focus:border-navy focus:outline-none"
+                />
+                <div
+                  id="flightDatePicker"
+                  class="hidden border border-border bg-sheet shadow-lg"
+                >
+                  <div class="date-picker-content">
+                    <div class="flex items-center justify-between mb-3">
+                      <button
+                        type="button"
+                        id="datePickerPrevMonth"
+                        class="p-2 hover:bg-canvas transition"
+                      >
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                      </button>
+                      <h3
+                        id="datePickerMonthYear"
+                        class="text-sm font-semibold text-ink"
+                      ></h3>
+                      <button
+                        type="button"
+                        id="datePickerNextMonth"
+                        class="p-2 hover:bg-canvas transition"
+                      >
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                      </button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 mb-2" style="display: grid; grid-template-columns: repeat(7, 1fr);">
+                      <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">
+                        S
+                      </div>
+                      <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">
+                        M
+                      </div>
+                      <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">
+                        T
+                      </div>
+                      <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">
+                        W
+                      </div>
+                      <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">
+                        T
+                      </div>
+                      <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">
+                        F
+                      </div>
+                      <div class="text-center text-xs font-semibold text-muted py-1" style="display: flex; align-items: center; justify-content: center;">
+                        S
+                      </div>
+                    </div>
+                    <div id="datePickerDays" class="grid grid-cols-7 gap-1"></div>
+                  </div>
+                  <div class="border-t border-border" id="datePickerButtons" style="padding: 0.75rem !important; box-sizing: border-box !important;">
+                    <div class="flex gap-2" style="gap: 0.5rem !important;">
+                      <button
+                        type="button"
+                        id="flightDateToday"
+                        class="flex-1 border border-border bg-sheet px-3 py-2 text-sm font-semibold text-ink transition hover:bg-navy hover:text-sheet"
+                        style="transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important; padding: 0.5rem 0.75rem !important;"
+                      >
+                        Today
+                      </button>
+                      <button
+                        type="button"
+                        id="flightDateTomorrow"
+                        class="flex-1 border border-border bg-sheet px-3 py-2 text-sm font-semibold text-ink transition hover:bg-navy hover:text-sheet"
+                        style="transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important; padding: 0.5rem 0.75rem !important;"
+                      >
+                        Tomorrow
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-sm border border-amber-200 bg-amber-50 px-4 py-3">
+            <div class="flex items-start gap-2">
+              <i data-lucide="info" class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0"></i>
+              <p class="text-xs text-amber-800">
+                <span class="font-semibold">Note:</span> AeroAPI typically supports flight searches up to 24-48 hours in advance. For dates beyond this range, results may be limited. Historical flight data is available for dates in the past.
+              </p>
+            </div>
+          </div>
+          <div id="flightSearchError" class="hidden text-sm text-red-600"></div>
+          <div id="flightSearchLoading" class="hidden text-center text-sm text-muted">
+            Searching flights...
+          </div>
+          <button
+            id="flightSearchBtn"
+            class="w-full border border-navy bg-navy px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-sheet transition hover:bg-transparent hover:text-navy"
+          >
+            Search
+          </button>
+          <div id="flightSearchResults" class="space-y-3 max-h-96 overflow-y-auto mt-4">
+            <!-- Search results will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flight Booking Details Modal (Step 2: Enter booking details) -->
+    <div
+      id="flightBookingModal"
+      class="fixed inset-0 z-[9999] flex items-center justify-center bg-ink/95 opacity-0 transition-opacity duration-300"
+      style="pointer-events: none"
+    >
+      <div
+        class="relative mx-4 w-full max-w-2xl overflow-hidden border-2 border-border bg-sheet shadow-2xl max-h-[90vh] overflow-y-auto"
+      >
+        <div class="border-b border-border bg-sheet px-8 py-6">
+          <div class="flex items-center justify-between">
+            <h2 class="font-display text-2xl font-semibold tracking-tight">Add Booking Details</h2>
+            <button
+              id="closeFlightBookingModal"
+              class="flex h-8 w-8 items-center justify-center border border-border transition hover:border-navy hover:bg-navy hover:text-sheet"
+            >
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+        </div>
+        <div class="px-8 py-6 space-y-6">
+          <!-- Selected Flight Summary -->
+          <div id="selectedFlightSummary" class="border border-border p-4 bg-canvas">
+            <!-- Will be populated by JS -->
+          </div>
+
+          <!-- Booking Details Form -->
+          <div class="space-y-4">
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-ink">
+                Booking Number / Confirmation Code
+              </label>
+              <input
+                type="text"
+                id="bookingNumber"
+                class="w-full border border-border bg-sheet px-4 py-3 text-ink placeholder:text-muted focus:border-navy focus:outline-none"
+                placeholder="e.g., BA-7K8M2N (optional)"
+              />
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-ink">
+                Ticket Number (Optional)
+              </label>
+              <input
+                type="text"
+                id="ticketNumber"
+                class="w-full border border-border bg-sheet px-4 py-3 text-ink placeholder:text-muted focus:border-navy focus:outline-none"
+                placeholder="e.g., 125-1234567890"
+              />
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-ink">
+                Seat Number
+              </label>
+              <input
+                type="text"
+                id="seatNumber"
+                class="w-full border border-border bg-sheet px-4 py-3 text-ink placeholder:text-muted focus:border-navy focus:outline-none"
+                placeholder="e.g., 12A (optional)"
+              />
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-ink">
+                Seat Class
+              </label>
+              <select
+                id="seatClass"
+                class="w-full border border-border bg-sheet px-4 py-3 text-ink focus:border-navy focus:outline-none"
+              >
+                <option value="">Select seat class</option>
+                <option value="Economy">Economy</option>
+                <option value="Premium Economy">Premium Economy</option>
+                <option value="Business">Business</option>
+                <option value="First">First</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-semibold text-ink">
+                Gate (Optional)
+              </label>
+              <input
+                type="text"
+                id="gate"
+                class="w-full border border-border bg-sheet px-4 py-3 text-ink placeholder:text-muted focus:border-navy focus:outline-none"
+                placeholder="e.g., B12"
+              />
+            </div>
+          </div>
+
+          <div id="flightBookingError" class="hidden text-sm text-red-600"></div>
+          <div id="flightBookingLoading" class="hidden text-center text-sm text-muted">
+            Saving flight...
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button
+              id="backToSearchBtn"
+              class="flex-1 border border-border bg-sheet px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-ink transition hover:bg-navy hover:text-sheet"
+            >
+              Back
+            </button>
+            <button
+              id="saveFlightBtn"
+              class="flex-1 border border-navy bg-navy px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-sheet transition hover:bg-transparent hover:text-navy"
+            >
+              Save Flight
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flight Details Modal -->
+    <div
+      id="flightDetailsModal"
+      class="fixed inset-0 z-[9999] flex items-center justify-center bg-ink/95 opacity-0 transition-opacity duration-300"
+      style="pointer-events: none"
+    >
+      <div
+        class="relative mx-4 h-[90vh] w-full max-w-3xl overflow-hidden border-2 border-border bg-sheet shadow-2xl flex flex-col"
+      >
+        <!-- Modal Body - Content dynamically inserted here -->
+        <div
+          id="flightDetailsContent"
+          class="h-[90vh] overflow-y-auto bg-sheet relative flex flex-col"
+        >
+          <!-- Content will be dynamically inserted -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Protection Script -->
+    <script>
+      /**
+       * Authentication Protection
+       * Note: Server-side middleware handles authentication and redirects.
+       * This page will only load if the user is authenticated.
+       */
+    </script>
+
+    <script src="../vendor/lucide.min.js"></script>
+    <script src="../scripts/pages/home.js" defer></script>
+  </body>
+</html>
+

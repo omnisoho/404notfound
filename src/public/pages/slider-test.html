@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider Test - Budget Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <style>
+        /* Fix for modal dialog interfering with range sliders */
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Ensure sliders work properly in modal */
+        dialog .percentage-slider {
+            pointer-events: auto !important;
+            z-index: 1000;
+        }
+
+        /* Alternative approach: use show() instead of showModal() */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 32rem;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Slider Test Page</h1>
+
+        <!-- Test Modal Buttons -->
+        <div class="mb-8 space-x-4">
+            <button id="openModalBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Open Modal (showModal)
+            </button>
+            <button id="openCustomModalBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                Open Custom Modal (show)
+            </button>
+        </div>
+
+        <!-- Modal Dialog (native) -->
+        <dialog id="testModal" class="p-8 rounded-lg shadow-xl border-0 max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Budget Categories (Native Modal)</h2>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+
+            <div class="space-y-4" id="modalCategoriesContainer">
+                <!-- Categories will be populated here -->
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button id="modalCloseBtn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    Close
+                </button>
+            </div>
+        </dialog>
+
+        <!-- Custom Modal (non-native) -->
+        <div id="customModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">Budget Categories (Custom Modal)</h2>
+                    <button id="closeCustomModalBtn" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+                </div>
+
+                <div class="space-y-4" id="customModalCategoriesContainer">
+                    <!-- Categories will be populated here -->
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button id="customModalCloseBtn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Standalone Sliders (outside modal) -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold mb-4">Standalone Sliders</h2>
+            <div class="space-y-4" id="standaloneCategoriesContainer">
+                <!-- Categories will be populated here -->
+            </div>
+        </div>
+
+        <!-- Debug Info -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Debug Info</h2>
+            <div id="debugInfo" class="text-sm text-gray-600">
+                Click sliders to test functionality
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple slider test logic
+        class SliderTest {
+            constructor() {
+                this.categories = {
+                    accommodation: { percentage: 30, amount: 0, color: '#1e3a5f', label: 'Accommodation' },
+                    food: { percentage: 25, amount: 0, color: '#f59e0b', label: 'Food' },
+                    shopping: { percentage: 15, amount: 0, color: '#8b5cf6', label: 'Shopping' },
+                    attractions: { percentage: 15, amount: 0, color: '#ef4444', label: 'Attractions' },
+                    transport: { percentage: 10, amount: 0, color: '#10b981', label: 'Transport' },
+                    other: { percentage: 5, amount: 0, color: '#6b7280', label: 'Other' }
+                };
+
+                this.totalBudget = 5000;
+                this.init();
+            }
+
+            init() {
+                this.setupNativeModal();
+                this.setupCustomModal();
+                this.renderStandaloneSliders();
+                this.renderNativeModalSliders();
+                this.renderCustomModalSliders();
+            }
+
+            setupNativeModal() {
+                const modal = document.getElementById('testModal');
+                const openBtn = document.getElementById('openModalBtn');
+                const closeBtn = document.getElementById('closeModalBtn');
+                const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+                openBtn.addEventListener('click', () => {
+                    modal.showModal();
+                    this.updateDebugInfo('Native modal opened');
+                });
+
+                closeBtn.addEventListener('click', () => {
+                    modal.close();
+                    this.updateDebugInfo('Native modal closed');
+                });
+
+                modalCloseBtn.addEventListener('click', () => {
+                    modal.close();
+                    this.updateDebugInfo('Native modal closed');
+                });
+
+                // Close modal when clicking outside
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.close();
+                        this.updateDebugInfo('Native modal closed (outside click)');
+                    }
+                });
+            }
+
+            setupCustomModal() {
+                const modal = document.getElementById('customModal');
+                const openBtn = document.getElementById('openCustomModalBtn');
+                const closeBtn = document.getElementById('closeCustomModalBtn');
+                const modalCloseBtn = document.getElementById('customModalCloseBtn');
+
+                openBtn.addEventListener('click', () => {
+                    modal.classList.add('show');
+                    this.updateDebugInfo('Custom modal opened');
+                });
+
+                closeBtn.addEventListener('click', () => {
+                    modal.classList.remove('show');
+                    this.updateDebugInfo('Custom modal closed');
+                });
+
+                modalCloseBtn.addEventListener('click', () => {
+                    modal.classList.remove('show');
+                    this.updateDebugInfo('Custom modal closed');
+                });
+
+                // Close modal when clicking outside
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('show');
+                        this.updateDebugInfo('Custom modal closed (outside click)');
+                    }
+                });
+            }
+
+            renderStandaloneSliders() {
+                const container = document.getElementById('standaloneCategoriesContainer');
+                container.innerHTML = '';
+
+                Object.entries(this.categories).forEach(([key, category]) => {
+                    const categoryDiv = this.createCategorySlider(key, category, 'standalone');
+                    container.appendChild(categoryDiv);
+                });
+            }
+
+            renderNativeModalSliders() {
+                const container = document.getElementById('modalCategoriesContainer');
+                container.innerHTML = '';
+
+                Object.entries(this.categories).forEach(([key, category]) => {
+                    const categoryDiv = this.createCategorySlider(key, category, 'native-modal');
+                    container.appendChild(categoryDiv);
+                });
+            }
+
+            renderCustomModalSliders() {
+                const container = document.getElementById('customModalCategoriesContainer');
+                container.innerHTML = '';
+
+                Object.entries(this.categories).forEach(([key, category]) => {
+                    const categoryDiv = this.createCategorySlider(key, category, 'custom-modal');
+                    container.appendChild(categoryDiv);
+                });
+            }
+
+            createCategorySlider(key, category, location) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200';
+
+                categoryDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background-color: ${category.color}"></div>
+                            <span class="font-medium text-gray-900">${category.label}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-semibold text-gray-900">$${(this.totalBudget * category.percentage / 100).toFixed(0)}</div>
+                            <div class="text-sm text-gray-500">${category.percentage.toFixed(2)}%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">0%</span>
+                        <input type="range" min="0" max="100" value="${category.percentage}" step="0.01"
+                               class="percentage-slider flex-1" data-category="${key}" data-location="${location}">
+                        <span class="text-xs text-gray-500">100%</span>
+                    </div>
+                `;
+
+                // Add event listener
+                const slider = categoryDiv.querySelector('.percentage-slider');
+                slider.addEventListener('input', (e) => {
+                    const categoryKey = e.target.getAttribute('data-category');
+                    const location = e.target.getAttribute('data-location');
+                    const newValue = parseFloat(e.target.value);
+                    this.updateCategoryPercentage(categoryKey, newValue, location);
+                });
+
+                return categoryDiv;
+            }
+
+            updateCategoryPercentage(categoryKey, newPercentage, location) {
+                // Validate categoryKey exists
+                if (!categoryKey || !this.categories[categoryKey]) {
+                    console.error('Invalid category key:', categoryKey);
+                    this.updateDebugInfo(`Error: Invalid category key "${categoryKey}"`);
+                    return;
+                }
+
+                const currentPercentage = this.categories[categoryKey].percentage;
+                const difference = newPercentage - currentPercentage;
+
+                if (difference === 0) return; // No change needed
+
+                this.updateDebugInfo(`${location}: ${this.categories[categoryKey].label} changed from ${currentPercentage.toFixed(2)}% to ${newPercentage.toFixed(2)}%`);
+
+                // Get all other categories
+                const otherCategories = Object.keys(this.categories).filter(key => key !== categoryKey);
+
+                // Calculate total percentage of other categories
+                const totalOtherPercentage = otherCategories.reduce((sum, key) => sum + this.categories[key].percentage, 0);
+
+                if (totalOtherPercentage === 0) {
+                    // If all other categories are 0, distribute evenly among them
+                    const evenShare = (100 - newPercentage) / otherCategories.length;
+                    otherCategories.forEach(key => {
+                        this.categories[key].percentage = Math.max(0, evenShare);
+                    });
+                } else {
+                    // Distribute the difference proportionally among other categories
+                    otherCategories.forEach(key => {
+                        const category = this.categories[key];
+                        const proportion = category.percentage / totalOtherPercentage;
+                        const adjustment = difference * proportion;
+                        category.percentage = Math.max(0, category.percentage - adjustment);
+                    });
+                }
+
+                // Set the new percentage for the changed category
+                this.categories[categoryKey].percentage = newPercentage;
+
+                // Ensure total is exactly 100% (handle floating point precision issues)
+                const total = Object.values(this.categories).reduce((sum, cat) => sum + cat.percentage, 0);
+                if (Math.abs(total - 100) > 0.01) {
+                    // Adjust the largest category to make total exactly 100
+                    const largestCategory = Object.keys(this.categories).reduce((a, b) =>
+                        this.categories[a].percentage > this.categories[b].percentage ? a : b
+                    );
+                    this.categories[largestCategory].percentage += (100 - total);
+                }
+
+                // Update UI
+                this.renderStandaloneSliders();
+                this.renderNativeModalSliders();
+                this.renderCustomModalSliders();
+            }
+
+            updateDebugInfo(message) {
+                const debugDiv = document.getElementById('debugInfo');
+                const timestamp = new Date().toLocaleTimeString();
+                debugDiv.innerHTML = `<div>${timestamp}: ${message}</div>` + debugDiv.innerHTML;
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new SliderTest();
+        });
+    </script>
+</body>
+</html>

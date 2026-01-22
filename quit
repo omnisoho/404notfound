@@ -1,0 +1,152 @@
+[33m9c1f7d3[m[33m ([m[1;31morigin/budgetPlanner[m[33m)[m Merge branch 'main' into budgetPlanner
+[33m966ad22[m Merge pull request #20 from soc-cicd/feature/admin-dashboard
+[33m4d83fc6[m feat: complete Admin.model.js with analytics functions
+[33m1ae6334[m Merge pull request #19 from soc-cicd/feature/admin-dashboard
+[33ma537ab2[m feat: create Admin.model.js with user management functions
+[33m1baf0c5[m Merge pull request #18 from soc-cicd/feature/admin-dashboard
+[33m12f4ded[m feat: add requireAdmin middleware for admin route protection
+[33m4430857[m Merge pull request #17 from soc-cicd/feature/personality-quiz
+[33m0c804b4[m[33m ([m[1;31morigin/feature/personality-quiz[m[33m)[m feat: add persona description to profile and improve quiz results display
+[33m8f83d58[m Merge pull request #16 from soc-cicd/travelDashboard
+[33me6f118c[m[33m ([m[1;31morigin/travelDashboard[m[33m)[m added authentication middleware to travel dashboard
+[33m0dd924e[m Merge pull request #15 from soc-cicd/feature/personality-quiz
+[33mfa9900d[m feat: implement personality quiz feature with OpenAI integration
+[33mf6c33e9[m Merge branch 'main' of https://github.com/soc-cicd/ay2526s2-project-class-2b02-group-404notfound into feature/personality-quiz
+[33m3206f60[m remove the seeding stuff, add quiz questions and edit personality table
+[33mbd89e44[m Add personality quiz database models and seed data
+[33m1dc8936[m Merge branch 'main' of https://github.com/soc-cicd/ay2526s2-project-class-2b02-group-404notfound
+[33m73d197b[m packing list bug fix
+[33m14c9a14[m Merge branch 'main' of https://github.com/soc-cicd/ay2526s2-project-class-2b02-group-404notfound
+[33mf062a66[m Add comprehensive future plans and roadmap wiki page
+[33m02d6766[m fixed syntax error
+[33m8bfeedf[m Update auth middleware
+[33m8730992[m Add activity and steps routers, improve code formatting
+[33m3d90c65[m Resolve merge conflicts: combine all trip model and router functionality
+[33m23b0fe7[m Merge feature/flight-api-integration into main - resolved conflicts
+[33m23e601b[m[33m ([m[1;31morigin/feature/flight-api-integration[m[33m)[m Update flight details modal and home page styling
+[33m70ec66e[m Merge branch 'restaurantnattractionreco'
+[33m98bd70c[m changed to use prisma
+[33mba8c666[m Merge pull request #14 from soc-cicd/travelDashboard
+[33m5eeb5c4[m debugged issuse with step tracker as well as added date validation for it
+[33m1cabd0b[m Add budget planner test scripts
+[33me94135a[m Merge branch 'main' of https://github.com/soc-cicd/ay2526s2-project-class-2b02-group-404notfound
+[33m111a02a[m Merge pull request #13 from soc-cicd/travelDashboard
+[33m75296c3[m Merge branch 'main' into travelDashboard
+[33mf7068fd[m added step counter editor
+[33m7b3fd7c[m Merge pull request #12 from soc-cicd/checkout_continuation
+[33ma3fd59a[m[33m ([m[1;31morigin/checkout_continuation[m[33m)[m Merge branch 'main' into checkout_continuation
+[33m4655bb5[m disable the add member button
+[33mafc100c[m bug fix when creating a new trip such that when creating a new trip it doesnt add to tripMembers. And make it so that you cant remove yourself from the trip
+[33m4b79b6c[m Merge branch 'restaurantNattractionreco'
+[33mf7eb60d[m added loading
+[33m1ae83d3[m changed dark theme to default
+[33m761a6e1[m add checking of items, also added memberList for future features
+[33m0cda647[m Merge pull request #11 from soc-cicd/mainDashboard
+[33m2c93bb7[m[33m ([m[1;31morigin/mainDashboard[m[33m)[m Merge branch 'main' into mainDashboard
+[33m77af4bb[m debugging
+[33m84f3454[m Merge pull request #10 from soc-cicd/travelDashboard
+[33m7d13643[m Merge branch 'travelDashboard' of https://github.com/soc-cicd/ay2526s2-project-class-2b02-group-404notfound into travelDashboard
+[33m84b41bb[m updated look for travel dashboard
+[33m1224faa[m Merge branch 'restaurantnattractionreco'
+[33m9bfb98a[m[33m ([m[1;31morigin/RestaurantNattractionReco[m[33m)[m added slider
+[33m4f1c574[m fixed image name
+[33me19ff5a[m fixed backend image
+[33md568ba4[m Implementation of backend
+[33macddac7[m uses activity database to retrieve recommended attractions
+[33m7a764a7[m Add comprehensive aircraft information to flight details modal
+[33ma7e5538[m Merge remote main into local main - resolved conflict in app.js
+[33m0683e4a[m Polish UI: progress bar glow, terminal display, and minimalist footer
+[33mfe4bcfc[m Added more validation to creating trips, such as country and city validation
+[33m5944c67[m Update flight API integration: improve date picker, add validation, and enhance AeroAPI service
+[33m52dd9d2[m Merge pull request #9 from soc-cicd/mainDashboard
+[33mf1bb96a[m integreted main dashboard with the home page and travel dashboard
+[33ma21eb75[m fixing app .js overlaps
+[33m27a3c7c[m Merge branch 'restaurantnattractionreco'
+[33m45d1210[m searching in the list and editing custom items
+[33m2a38284[m moved js script
+[33m7e6b4af[m fixed app and package.json
+[33m39bcce9[m Merge branch 'zhtRestaurantNAttractionReco' of https://github.com/soc-cicd/ay2526s2-project-class-2b02-group-404notfound into zhtRestaurantNAttractionReco
+[33ma7c7852[m moved styles to css and moved data to neondb
+[33m2104981[m add a search feature when adding packing list
+[33m82e43ea[m Merge pull request #8 from soc-cicd/travelDashboard
+[33m87dddb3[m Merge branch 'main' into travelDashboard
+[33md3e99de[m added more sample like steps, integrated a free weather API
+[33m6880c0a[m Merge branch 'budgetplanner'
+[33mfbe7c2e[m delete item from packingList
+[33mbc7731d[m adding trip and adding items to packingList
+[33m10787a4[m seeded more sample data
+[33mfcf4eba[m Improve date picker: responsive positioning, free plan limitation disclaimer and validation
+[33mae829bf[m trying to implement weather api into the dashboard
+[33m3142816[m Merge remote-tracking branch 'origin/main' into feature/flight-api-integration
+[33m7ba85d6[m update_flight_Table
+[33mbe929d8[m Implement flight API integration with custom date picker, improved formatting, and smooth animations
+[33m8a60303[m Add profile page with statistics dashboard and achievements
+[33m6ab7dad[m Merge branch 'main' of https://github.com/soc-cicd/ay2526s2-project-class-2b02-group-404notfound
+[33madbe20e[m rewriting and re-orgainising code
+[33m8dd27f4[m profile_picture_and_flight_table_update migration
+[33m7598539[m rewriting codes
+[33m588d928[m Update User model and add utils directory
+[33m8043a1d[m seeded sample data, added chart to travel dashboard
+[33m5314234[m[33m ([m[1;31morigin/feature/oauth-implementation[m[33m)[m Complete OAuth implementation with Google and Facebook, timezone/currency detection, settings improvements, and user dropdown updates
+[33mf9e4606[m Add OAuthStateManager for CSRF protection
+[33m7551a55[m Implement OAuth provider classes and factory
+[33md269a6b[m Merge remote-tracking branch 'origin/main' into feature/oauth-implementation
+[33m338e08d[m Add OAuth provider interface and OAuthUserInfo DTO
+[33m18f4745[m add profile picture handling
+[33me46d03d[m add oauth columns for user
+[33m105cb6b[m Redesign delete modal to match theme
+[33m37cd30b[m Fix jose ES module import error for Windows compatibility
+[33m1714ec2[m Add user preferences and settings functionality
+[33m75ceb86[m add user_migration_table
+[33m5929da9[m Fix plane icon positioning on flight progress bar
+[33m87773d3[m Merge profile-dropdown-redesign into main
+[33m91f3990[m[33m ([m[1;31morigin/profile-dropdown-redesign[m[33m)[m Polish hero section, redesign welcome section, add page protection for home page
+[33m4ce0650[m[33m ([m[1;31morigin/settings[m[33m)[m Settings page improvements and Prisma downgrade
+[33m5b7ce5b[m Downgrade Prisma from 7.0.0 to 6.19.0
+[33md6b5191[m Implement user settings functionality with SOLID principles
+[33md508657[m Update Prisma 7.0.0 configuration and user schema fields
+[33med90d09[m Merge main into settings: Add Prisma 7.0.0 config and user fields
+[33mebc7a90[m Update flight cards and modal functionality
+[33m7725271[m update user table, timezone, currency, measurement
+[33m7fbde04[m Refactor settings page: extract shared utilities and message manager
+[33m31efca5[m Upgrade Prisma to version 7.0.0
+[33m14d7bd2[m Upgrade Prisma to version 7.0.0
+[33me43d4bc[m Fix dropdown z-index and clipping issues, limit currency to USD and SGD
+[33m01240bf[m Update settings and auth pages
+[33m7519b49[m Add settings page
+[33m2981162[m Add home.js to load flights, trips, and user profile data with improved styling
+[33m30a2c71[m Merge branch 'main' of https://github.com/soc-cicd/ay2526s2-project-class-2b02-group-404notfound
+[33m230652f[m fixed
+[33m31fb905[m Add explicit route for landing page (index.html) at root path
+[33m7921731[m Merge pull request #7 from soc-cicd/zhtRestaurantNAttractionReco
+[33m0cfeba5[m[33m ([m[1;31morigin/zhtRestaurantNAttractionReco[m[33m)[m Merge branch 'main' into zhtRestaurantNAttractionReco
+[33m02c249d[m Merge pull request #6 from soc-cicd/travelDashboard
+[33mb803dac[m Merge branch 'main' into travelDashboard
+[33m4143393[m Add travel dashboard
+[33m30052aa[m fix
+[33mfadf146[m Merge pull request #4 from soc-cicd/displayPackingList
+[33m69a7d2f[m used new layout
+[33m63cf9dd[m[33m ([m[1;31morigin/displayPackingList[m[33m)[m Merge branch 'main' into displayPackingList
+[33m72db63e[m Merge pull request #5 from soc-cicd/budgetplanner
+[33m8901f43[m added the route to app.js
+[33mc32e7af[m Fixed packingList
+[33mb1b4c13[m Merge branch 'travelDashboard' of https://github.com/soc-cicd/ay2526s2-project-class-2b02-group-404notfound into travelDashboard
+[33m84029da[m redesign
+[33md4e9db7[m Implement sticky navbar with seamless border expansion animation
+[33m7913434[m completed skeleton of travel dashboard
+[33ma2511d1[m Fix back button collision with brand and add smart overflow detection
+[33m03de4ea[m Fix mobile responsive layout: ensure 100vh height, no page scrolling, all elements visible
+[33mcc280fa[m Fix Windows Prisma DLL lock issue: add cross-platform postinstall script
+[33m6ced47d[m Fix jose ESM import: use dynamic import() for CommonJS compatibility
+[33mc73ec2f[m Fix Windows compatibility: replace cp with copyfiles for cross-platform support
+[33m3341163[m Merge pull request #3 from soc-cicd/auth-home-landing-page
+[33m8f6cfb3[m[33m ([m[1;31morigin/auth-home-landing-page[m[33m)[m Fix terms checkbox validation feedback and standardize social button styling
+[33ma63725e[m update packing tables
+[33m5cd44b2[m saving addItemToPackingList
+[33mf98c049[m Add authentication routes, middleware, user model, and styling dependencies
+[33m45a25b8[m small fixes
+[33m0b1d7f5[m Fix auth page mobile spacing, border consistency, and UI improvements
+[33m47774b8[m add packingList display
+[33m8edccae[m fixed logo
+[33m292c29f[m frontend for restaurant&attraction recommendation
+[33m0b8238a[m Updating database to have Uuid

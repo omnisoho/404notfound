@@ -1,0 +1,2819 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings — Kōsui</title>
+    <link rel="stylesheet" href="../styles/output.css" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+      :root {
+        --ink: #060606;
+        --canvas: #f3f1eb;
+        --sheet: #fefdf9;
+        --border: #dcd6c8;
+        --muted: #6d7177;
+        --navy: #1e3a5f;
+        --navy-light: #2d4f7c;
+        --easing-premium: cubic-bezier(0.16, 1, 0.3, 1);
+        --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --easing-swiss: cubic-bezier(0.25, 0.1, 0.25, 1);
+        --transition-fast: 0.2s var(--easing-swiss);
+        --transition-base: 0.35s var(--easing-premium);
+        --transition-slow: 0.6s var(--easing-premium);
+      }
+
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 100;
+        background: var(--canvas);
+        transition: all 0.4s var(--easing-premium);
+        padding-top: 1.5rem;
+        padding-bottom: 1.25rem;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 2rem;
+        max-width: 80rem;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+      }
+
+      header::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 2.5rem);
+        height: 2px;
+        background: rgba(0, 0, 0, 0.1);
+        transition: width 0.6s var(--easing-premium),
+          left 0.6s var(--easing-premium), transform 0.6s var(--easing-premium);
+        transform-origin: center;
+        z-index: 1;
+      }
+
+      header.scrolled {
+        background: rgba(243, 241, 235, 0.85) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      header.scrolled::before {
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100vw;
+      }
+
+      header nav a {
+        position: relative;
+        display: inline-block;
+        padding: 0.625rem 1.25rem !important;
+      }
+
+      header nav a::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 4px;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          #060606 0%,
+          #060606 50%,
+          transparent 50%,
+          transparent 100%
+        );
+        background-size: 200% 100%;
+        background-position: 100% 0;
+        opacity: 0;
+        transition: all 0.6s var(--easing-premium);
+      }
+
+      header nav a:hover::before {
+        opacity: 1;
+        background-position: 0 0;
+      }
+
+      header nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 3px;
+        width: 3px;
+        height: 3px;
+        background: #060606;
+        border-radius: 50%;
+        opacity: 0;
+        box-shadow: calc(100% - 3px) 0 0 0 #060606;
+        transition: all 0.5s var(--easing-spring);
+        transition-delay: 0.2s;
+      }
+
+      header nav a:hover::after {
+        opacity: 1;
+        transform: scale(1.3);
+      }
+
+      header nav a:hover {
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(6, 6, 6, 0.03) 100%
+        );
+      }
+
+      .settings-container {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 0;
+        height: calc(100vh - 7rem);
+        margin-top: 7rem;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0;
+        overflow: visible;
+        overflow-x: visible;
+        overflow-y: visible;
+        position: relative;
+      }
+
+      @media (max-width: 1024px) {
+        .settings-container {
+          grid-template-columns: 180px 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .settings-container {
+          grid-template-columns: 1fr;
+        }
+        .settings-sidebar {
+          display: none;
+        }
+      }
+
+      .settings-sidebar {
+        position: sticky;
+        top: 7rem;
+        height: calc(100vh - 7rem);
+        background: var(--canvas);
+        border-right: 1px solid var(--border);
+        padding: 2rem 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .settings-sidebar::-webkit-scrollbar {
+        width: 3px;
+      }
+
+      .settings-sidebar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .settings-sidebar::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+        transition: background 0.3s var(--easing-premium);
+      }
+
+      .settings-sidebar::-webkit-scrollbar-thumb:hover {
+        background: var(--muted);
+      }
+
+      .sidebar-header {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+        position: relative;
+      }
+
+      .sidebar-title {
+        font-size: 1.125rem;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        margin-bottom: 0.25rem;
+        color: var(--ink);
+      }
+
+      .sidebar-subtitle {
+        font-size: 0.75rem;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .category-item {
+        margin: 0;
+        padding: 0;
+      }
+
+      .category-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.5rem;
+        text-decoration: none;
+        color: var(--ink);
+        transition: background-color 0.35s var(--easing-premium),
+          transform 0.35s var(--easing-premium),
+          color 0.35s var(--easing-premium);
+        position: relative;
+        background: transparent;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateX(-16px) scale(0.97);
+        will-change: opacity, transform, background-color;
+        overflow: hidden;
+      }
+
+      .category-link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--navy);
+        transform: scaleY(0);
+        transform-origin: bottom;
+        transition: transform 0.5s var(--easing-premium),
+          opacity 0.3s var(--easing-premium);
+        opacity: 0;
+        border-radius: 0 2px 2px 0;
+      }
+
+      .category-link::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        background: rgba(30, 58, 95, 0.03);
+        transform: translateX(-100%);
+        transition: transform 0.4s var(--easing-premium);
+        will-change: transform;
+      }
+
+      .category-link.revealed {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+
+      .category-link:hover::before {
+        transform: translateX(0);
+      }
+
+      .category-link:not(.active):hover {
+        background: rgba(30, 58, 95, 0.03);
+        transform: translateX(3px) scale(1);
+        color: var(--navy-light);
+      }
+
+      .category-link.active {
+        background: rgba(30, 58, 95, 0.07);
+        color: var(--navy);
+        font-weight: 500;
+        transform: translateX(0) scale(1);
+      }
+
+      .category-link.active:hover {
+        background: rgba(30, 58, 95, 0.09);
+        transform: translateX(0) scale(1);
+        color: var(--navy);
+      }
+
+      .category-link.active::after {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+
+      .category-link.active::before {
+        transform: translateX(0);
+        background: rgba(30, 58, 95, 0.05);
+      }
+
+      .category-link.active:hover::before {
+        background: rgba(30, 58, 95, 0.07);
+      }
+
+      .category-name {
+        font-size: 0.875rem;
+        letter-spacing: -0.005em;
+        transition: font-weight 0.3s var(--easing-premium),
+          color 0.3s var(--easing-premium);
+        position: relative;
+        z-index: 1;
+      }
+
+      .category-link.active .category-name {
+        font-weight: 500;
+      }
+
+      .category-count {
+        font-size: 0.8125rem;
+        color: var(--muted);
+        font-weight: 500;
+        transition: all 0.35s var(--easing-premium);
+        min-width: 1.75rem;
+        text-align: right;
+        opacity: 0.5;
+        position: relative;
+        z-index: 1;
+        transform: scale(1);
+      }
+
+      .category-link:hover .category-count {
+        color: var(--navy);
+        opacity: 0.8;
+      }
+
+      .category-link.active .category-count {
+        color: var(--navy);
+        opacity: 1;
+        font-weight: 600;
+      }
+
+      .settings-main {
+        padding: 2.5rem 3.5rem;
+        overflow-y: auto;
+        overflow-x: visible;
+        height: 100%;
+        max-height: 100%;
+        position: relative;
+        z-index: 1;
+      }
+
+      @media (max-width: 1024px) {
+        .settings-main {
+          padding: 2rem 2.5rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .settings-main {
+          padding: 2rem 1.5rem;
+        }
+      }
+
+      .settings-main::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .settings-main::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .settings-main::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+        transition: background 0.3s var(--easing-premium);
+      }
+
+      .settings-main::-webkit-scrollbar-thumb:hover {
+        background: var(--muted);
+      }
+
+      .content-section {
+        display: block;
+        opacity: 0;
+        transform: translateY(40px) scale(0.98);
+        margin-bottom: 4rem;
+        transition: opacity 0.9s var(--easing-premium),
+          transform 0.9s var(--easing-premium);
+        will-change: opacity, transform;
+        position: relative;
+        z-index: 1;
+      }
+
+      .content-section:has(.custom-dropdown-button.active) {
+        z-index: 2;
+      }
+
+      .content-section.revealed {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      .section-header {
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+      }
+
+      .section-header::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--navy);
+        transition: width 0.8s var(--easing-premium);
+      }
+
+      .content-section.revealed .section-header::after {
+        width: 60px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.375rem;
+        color: var(--ink);
+      }
+
+      .section-description {
+        font-size: 0.875rem;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .settings-card {
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        transition: all 0.5s var(--easing-premium);
+        position: relative;
+        overflow: visible;
+        overflow-x: visible;
+        overflow-y: visible;
+        will-change: transform, box-shadow, border-color;
+        z-index: 1;
+      }
+
+      .settings-card:has(.custom-dropdown-button.active),
+      .settings-card.dropdown-open {
+        z-index: 1000;
+      }
+
+      .settings-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(30, 58, 95, 0.03) 0%,
+          transparent 100%
+        );
+        transition: height 0.5s var(--easing-premium);
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+      }
+
+      .settings-card:hover {
+        border-color: var(--navy);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04),
+          0 2px 8px rgba(0, 0, 0, 0.02);
+        transform: translateY(-2px) scale(1.002);
+      }
+
+      .settings-card:hover::before {
+        height: 100%;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        z-index: 1;
+      }
+
+      .settings-card > *:not(::before) {
+        position: relative;
+        z-index: 1;
+      }
+
+      .settings-card .custom-dropdown {
+        z-index: 10;
+        position: relative;
+      }
+
+      .settings-card
+        .custom-dropdown:not(:has(.custom-dropdown-button.active)):not(
+          .dropdown-open
+        ) {
+        z-index: 10;
+      }
+
+      .card-header i {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: var(--navy);
+        transition: transform 0.4s var(--easing-spring);
+      }
+
+      .settings-card:hover .card-header i {
+        transform: scale(1.1) rotate(5deg);
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+        transition: color 0.3s var(--easing-premium);
+      }
+
+      .settings-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+        margin-bottom: 0.75rem;
+        display: block;
+        transition: color 0.3s var(--easing-premium);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 0.9375rem;
+        border: 1px solid var(--border);
+        background: var(--sheet);
+        color: var(--ink);
+        transition: all var(--transition-base);
+        font-family: inherit;
+        will-change: transform, border-color, box-shadow;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--navy);
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .form-input::placeholder {
+        color: var(--muted);
+        opacity: 0.6;
+      }
+
+      /* Custom Dropdown Component - Industry Standard */
+      .custom-dropdown {
+        position: relative;
+        width: 100%;
+        z-index: 10;
+      }
+
+      .custom-dropdown:has(.custom-dropdown-button.active),
+      .custom-dropdown.dropdown-open {
+        z-index: 10000;
+        position: relative;
+      }
+
+      /* Ensure inactive dropdowns in the same container stay below active ones */
+      .settings-card:has(.custom-dropdown-button.active)
+        .custom-dropdown:not(:has(.custom-dropdown-button.active)):not(
+          .dropdown-open
+        ),
+      .settings-card.dropdown-open
+        .custom-dropdown:not(.dropdown-open):not(
+          :has(.custom-dropdown-button.active)
+        ) {
+        z-index: 1;
+      }
+
+      /* Ensure space-y-6 spacing doesn't cause overlap issues */
+      .space-y-6 > .custom-dropdown + .custom-dropdown {
+        margin-top: 1.5rem;
+      }
+
+      .custom-dropdown-button {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        padding-right: 2.5rem;
+        font-size: 0.9375rem;
+        border: 1px solid var(--border);
+        background: var(--sheet);
+        color: var(--ink);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        font-family: inherit;
+        cursor: pointer;
+        text-align: left;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+      }
+
+      .custom-dropdown-button:hover {
+        border-color: var(--navy-light);
+      }
+
+      .custom-dropdown-button:focus {
+        outline: none;
+        border-color: var(--navy);
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+      }
+
+      .custom-dropdown-button.active {
+        border-color: var(--navy);
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+      }
+
+      .custom-dropdown-button .dropdown-chevron {
+        position: absolute;
+        right: 1rem;
+        width: 14px;
+        height: 14px;
+        color: var(--ink);
+        transition: transform 0.2s ease;
+        pointer-events: none;
+      }
+
+      .custom-dropdown-button.active .dropdown-chevron {
+        transform: rotate(180deg);
+      }
+
+      .custom-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        width: 100%;
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
+          0 2px 8px rgba(0, 0, 0, 0.08);
+        z-index: 10001 !important;
+        max-height: 280px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-4px);
+        transition: opacity 0.15s ease, transform 0.15s ease,
+          visibility 0.15s ease;
+        box-sizing: border-box;
+        pointer-events: none;
+        margin: 0;
+        padding: 0;
+        isolation: isolate;
+        contain: layout style paint;
+      }
+
+      .custom-dropdown-menu.active {
+        pointer-events: auto;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .custom-dropdown-menu.dropdown-up {
+        top: auto;
+        bottom: calc(100% + 4px);
+        transform: translateY(4px);
+      }
+
+      .custom-dropdown-menu.dropdown-up.active {
+        transform: translateY(0);
+      }
+
+      .custom-dropdown-menu::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .custom-dropdown-menu::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .custom-dropdown-menu::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+        transition: background 0.3s var(--easing-premium);
+      }
+
+      .custom-dropdown-menu::-webkit-scrollbar-thumb:hover {
+        background: var(--muted);
+      }
+
+      .custom-dropdown-option {
+        padding: 0.875rem 1rem;
+        font-size: 0.9375rem;
+        color: var(--ink);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        position: relative;
+        border-bottom: 1px solid transparent;
+        will-change: background-color, color, transform;
+      }
+
+      .custom-dropdown-option:last-child {
+        border-bottom: none;
+      }
+
+      .custom-dropdown-option:hover {
+        background: rgba(30, 58, 95, 0.04);
+        color: var(--navy);
+        transform: translateX(2px);
+      }
+
+      .custom-dropdown-option.selected {
+        background: rgba(30, 58, 95, 0.06);
+        color: var(--navy);
+        font-weight: 500;
+      }
+
+      .custom-dropdown-option.selected::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--navy);
+      }
+
+      /* Legacy form-select class for backwards compatibility */
+      .form-select {
+        display: none;
+      }
+
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--border);
+        transition: all 0.5s var(--easing-premium);
+        border-radius: 24px;
+        will-change: background-color, transform;
+      }
+
+      .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: all 0.5s var(--easing-spring);
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        will-change: transform;
+      }
+
+      .toggle-switch input:checked + .toggle-slider {
+        background-color: var(--navy);
+      }
+
+      .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(20px) scale(1.05);
+      }
+
+      .toggle-switch:hover .toggle-slider {
+        box-shadow: 0 0 0 4px rgba(30, 58, 95, 0.08);
+      }
+
+      .toggle-switch input:focus + .toggle-slider {
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.15);
+      }
+
+      .btn-primary {
+        padding: 0.875rem 1.75rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background: var(--navy);
+        color: var(--sheet);
+        border: 1px solid var(--navy);
+        transition: all var(--transition-base);
+        cursor: pointer;
+        font-family: inherit;
+        position: relative;
+        overflow: hidden;
+        will-change: transform, background-color, color;
+      }
+
+      .btn-primary::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s var(--easing-premium),
+          height 0.6s var(--easing-premium);
+      }
+
+      .btn-primary:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .btn-primary:hover {
+        background: var(--navy-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 58, 95, 0.25);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary span {
+        position: relative;
+        z-index: 1;
+      }
+
+      .btn-secondary {
+        padding: 0.875rem 1.75rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid var(--border);
+        transition: all var(--transition-base);
+        cursor: pointer;
+        font-family: inherit;
+        will-change: transform, border-color, background-color;
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--navy);
+        background: var(--canvas);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .btn-danger {
+        padding: 0.875rem 1.75rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background: transparent;
+        color: #dc2626;
+        border: 1px solid #dc2626;
+        transition: all var(--transition-base);
+        cursor: pointer;
+        font-family: inherit;
+        will-change: transform, background-color, color;
+      }
+
+      .btn-danger:hover {
+        background: #dc2626;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+      }
+
+      .avatar-upload {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+      }
+
+      .avatar-upload:hover .avatar-overlay {
+        opacity: 1;
+      }
+
+      .avatar-preview {
+        transition: transform 0.4s var(--easing-spring);
+        will-change: transform;
+      }
+
+      .avatar-upload:hover .avatar-preview {
+        transform: scale(1.05);
+      }
+
+      .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.4s var(--easing-premium);
+      }
+
+      .avatar-overlay i {
+        transition: transform 0.4s var(--easing-spring);
+      }
+
+      .avatar-upload:hover .avatar-overlay i {
+        transform: scale(1.2);
+      }
+
+      .setting-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 0;
+        border-bottom: 1px solid var(--border);
+        transition: all var(--transition-base);
+        position: relative;
+        will-change: transform, padding-left;
+      }
+
+      .setting-row:last-child {
+        border-bottom: none;
+      }
+
+      .setting-row::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: rgba(30, 58, 95, 0.04);
+        transition: width 0.4s var(--easing-premium);
+      }
+
+      .setting-row:hover {
+        padding-left: 0.75rem;
+      }
+
+      .setting-row:hover::before {
+        width: 4px;
+      }
+
+      .setting-info {
+        flex: 1;
+      }
+
+      .setting-label {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: var(--ink);
+        margin-bottom: 0.25rem;
+        transition: color 0.3s var(--easing-premium);
+      }
+
+      .setting-row:hover .setting-label {
+        color: var(--navy);
+      }
+
+      .setting-description {
+        font-size: 0.8125rem;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .fade-in-initial {
+        animation: fadeInInitial 0.8s var(--easing-premium) forwards;
+        opacity: 0;
+      }
+
+      @keyframes fadeInInitial {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .section-message-container {
+        position: relative;
+        margin-bottom: 1.5rem;
+        margin-top: 0;
+        overflow: hidden;
+        width: 100%;
+      }
+
+      .message {
+        padding: 0;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        margin-bottom: 0;
+        opacity: 0;
+        transform: translateY(-10px) scale(0.96);
+        transition: all 0.4s var(--easing-premium),
+          max-height 0.4s var(--easing-premium),
+          padding 0.4s var(--easing-premium), margin 0.4s var(--easing-premium);
+        position: relative;
+        overflow: hidden;
+        will-change: opacity, transform, max-height, padding, margin;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        padding-left: 0;
+        padding-right: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      .message::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: currentColor;
+        transition: left 0.6s var(--easing-premium);
+        z-index: 1;
+      }
+
+      .message-icon {
+        width: 1.125rem;
+        height: 1.125rem;
+        flex-shrink: 0;
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.3s var(--easing-spring);
+      }
+
+      .message-text {
+        flex: 1;
+        line-height: 1.6;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+      }
+
+      .message.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        max-height: 200px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .message.show::before {
+        left: 0;
+      }
+
+      .message.show .message-icon {
+        opacity: 1;
+        transform: scale(1);
+        transition-delay: 0.1s;
+      }
+
+      .message-success {
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        color: #15803d;
+      }
+
+      .message-success .message-icon::before {
+        content: "✓";
+        display: block;
+        width: 100%;
+        height: 100%;
+        font-size: 0.875rem;
+        font-weight: 700;
+        line-height: 1.125rem;
+        text-align: center;
+      }
+
+      .message-error {
+        background: rgba(220, 38, 38, 0.12);
+        border: 1px solid rgba(220, 38, 38, 0.25);
+        color: #b91c1c;
+      }
+
+      .message-error .message-icon::before {
+        content: "×";
+        display: block;
+        width: 100%;
+        height: 100%;
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.125rem;
+        text-align: center;
+      }
+
+      .space-y-6 > * + * {
+        margin-top: 1.5rem;
+      }
+
+      /* Account Actions Section Spacing */
+      .account-action-item {
+        padding: 1.75rem 0;
+        transition: all var(--transition-base);
+      }
+
+      .account-action-content {
+        flex: 1;
+        min-width: 0;
+        padding-right: 2rem;
+      }
+
+      .account-action-label {
+        margin-bottom: 0.5rem;
+      }
+
+      .account-action-button {
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+
+      .account-divider {
+        margin: 0;
+        padding-top: 1.75rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .account-divider > div {
+        margin-bottom: 1.25rem;
+      }
+
+      /* User dropdown - Smooth and elegant */
+      #userDropdown {
+        min-width: 180px;
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
+          0 1px 4px rgba(0, 0, 0, 0.04);
+        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+          visibility 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top right;
+        padding: 0.25rem 0;
+        transform: translateY(-8px) scale(0.96);
+        overflow: hidden;
+        position: absolute;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        top: 100%;
+        right: 0;
+        margin-top: 0.5rem;
+      }
+
+      #userDropdown.active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+      }
+
+      #userDropdown::before {
+        content: "";
+        position: absolute;
+        top: -5px;
+        right: 20px;
+        width: 10px;
+        height: 10px;
+        background: var(--sheet);
+        border-left: 1px solid var(--border);
+        border-top: 1px solid var(--border);
+        transform: rotate(45deg);
+        box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.03);
+        z-index: 1;
+      }
+
+      .dropdown-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: var(--ink);
+        transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+          padding-left 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+          color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+      }
+
+      .dropdown-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: rgba(30, 58, 95, 0.06);
+        transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 0;
+        border-radius: 0 1px 1px 0;
+      }
+
+      .dropdown-item:hover::before {
+        width: 2px;
+      }
+
+      .dropdown-item:hover {
+        background: rgba(30, 58, 95, 0.04);
+        padding-left: 1.125rem;
+        color: var(--navy);
+      }
+
+      .dropdown-item:active {
+        background: rgba(30, 58, 95, 0.06);
+      }
+
+      .dropdown-item i {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2;
+        color: var(--muted);
+        transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .dropdown-item:hover i {
+        color: var(--navy);
+      }
+
+      .dropdown-item span {
+        position: relative;
+        z-index: 1;
+        transition: color var(--transition-base);
+      }
+
+      .dropdown-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 0.25rem 0;
+        opacity: 0.5;
+      }
+
+      /* Delete Account Modal */
+      .delete-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 100000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: all var(--transition-base);
+      }
+
+      .delete-modal-overlay:not(.hidden) {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .delete-modal {
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        max-width: 520px;
+        width: 100%;
+        transform: translateY(20px) scale(0.98);
+        transition: transform var(--transition-base);
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
+          0 2px 8px rgba(0, 0, 0, 0.04);
+        position: relative;
+        will-change: transform;
+      }
+
+      .delete-modal-overlay:not(.hidden) .delete-modal {
+        transform: translateY(0) scale(1);
+      }
+
+      .delete-modal::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: #dc2626;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.6s var(--easing-premium);
+      }
+
+      .delete-modal-overlay:not(.hidden) .delete-modal::before {
+        transform: scaleX(1);
+      }
+
+      .delete-modal-header {
+        padding: 2.5rem 2.5rem 1.75rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+      }
+
+      .delete-modal-icon {
+        width: 1.75rem;
+        height: 1.75rem;
+        color: #dc2626;
+        flex-shrink: 0;
+        transition: transform 0.4s var(--easing-spring);
+      }
+
+      .delete-modal:hover .delete-modal-icon {
+        transform: scale(1.1) rotate(5deg);
+      }
+
+      .delete-modal-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        margin: 0;
+        transition: color 0.3s var(--easing-premium);
+      }
+
+      .delete-modal-body {
+        padding: 2.5rem;
+      }
+
+      .delete-modal-message {
+        font-size: 0.9375rem;
+        color: var(--ink);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+      }
+
+      .delete-modal-warning {
+        font-size: 0.875rem;
+        color: var(--muted);
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        letter-spacing: -0.005em;
+      }
+
+      .delete-modal-input-group {
+        margin-top: 2rem;
+      }
+
+      .delete-modal-label {
+        display: block;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        transition: color 0.3s var(--easing-premium);
+      }
+
+      .delete-modal-label strong {
+        color: #dc2626;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+      }
+
+      .delete-modal-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 0.9375rem;
+        border: 1px solid var(--border);
+        background: var(--sheet);
+        color: var(--ink);
+        transition: all var(--transition-base);
+        font-family: inherit;
+        will-change: transform, border-color, box-shadow;
+      }
+
+      .delete-modal-input:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .delete-modal-input::placeholder {
+        color: var(--muted);
+        opacity: 0.6;
+      }
+
+      .delete-modal-input:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: var(--canvas);
+      }
+
+      .delete-modal-footer {
+        padding: 1.75rem 2.5rem 2.5rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        border-top: 1px solid var(--border);
+      }
+
+      .delete-modal-cancel {
+        min-width: 100px;
+      }
+
+      .delete-modal-confirm {
+        min-width: 140px;
+      }
+
+      .delete-modal-confirm:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      /* Remove backdrop blur/darken effect */
+      #userDropdownBackdrop {
+        display: none !important;
+      }
+
+      /* ========================================================================
+         COLLAPSIBLE SIDEBAR TOGGLE
+         ======================================================================== */
+      .sidebar-toggle {
+        display: none;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 36px;
+        height: 36px;
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s var(--easing-premium);
+        z-index: 10;
+        will-change: transform, background-color, border-color;
+      }
+
+      .sidebar-toggle:hover {
+        background: var(--canvas);
+        border-color: var(--navy);
+        transform: scale(1.05);
+      }
+
+      .sidebar-toggle i {
+        width: 18px;
+        height: 18px;
+        color: var(--ink);
+        transition: transform 0.4s var(--easing-premium);
+      }
+
+      .sidebar-toggle.active i {
+        transform: rotate(180deg);
+      }
+
+      .mobile-sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 6.5rem;
+        left: 1rem;
+        width: 44px;
+        height: 44px;
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s var(--easing-premium);
+        z-index: 99;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        will-change: transform, background-color, border-color;
+      }
+
+      .mobile-sidebar-toggle:hover {
+        background: var(--canvas);
+        border-color: var(--navy);
+        transform: scale(1.05);
+      }
+
+      .mobile-sidebar-toggle.active {
+        background: var(--navy);
+        border-color: var(--navy);
+      }
+
+      .mobile-sidebar-toggle.active i {
+        color: var(--sheet);
+      }
+
+      .mobile-sidebar-toggle i {
+        width: 20px;
+        height: 20px;
+        color: var(--ink);
+        transition: transform 0.4s var(--easing-premium);
+      }
+
+      /* ========================================================================
+         RESPONSIVE BREAKPOINTS
+         ======================================================================== */
+      @media (max-width: 1024px) {
+        .settings-container {
+          grid-template-columns: 180px 1fr;
+        }
+
+        .settings-main {
+          padding: 2rem 2.5rem;
+        }
+
+        header nav {
+          gap: 1rem;
+        }
+
+        header nav a {
+          padding: 0.625rem 1rem !important;
+          font-size: 0.6rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .mobile-sidebar-toggle {
+          display: none !important;
+        }
+
+        .sidebar-toggle {
+          display: none;
+        }
+
+        .settings-container {
+          grid-template-columns: 1fr;
+          margin-top: 5.5rem;
+          height: calc(100vh - 5.5rem);
+          overflow-x: visible;
+          overflow-y: hidden;
+        }
+
+        .settings-sidebar {
+          display: none;
+        }
+
+        .settings-main {
+          height: 100%;
+          max-height: 100%;
+          overflow-y: auto;
+          overflow-x: visible;
+        }
+
+        .settings-main {
+          padding: 1.5rem 1.25rem;
+          height: 100%;
+          max-height: 100%;
+        }
+
+        .settings-card {
+          padding: 1.75rem;
+          margin-bottom: 2rem;
+        }
+
+        .card-header {
+          margin-bottom: 1.75rem;
+          padding-bottom: 1.25rem;
+        }
+
+        .card-title {
+          font-size: 1.125rem;
+        }
+
+        .section-header {
+          margin-bottom: 2rem;
+          padding-bottom: 1rem;
+        }
+
+        .section-title {
+          font-size: 1.25rem;
+        }
+
+        .section-description {
+          font-size: 0.8125rem;
+        }
+
+        .form-input {
+          padding: 1rem;
+          font-size: 1rem;
+        }
+
+        .custom-dropdown-button {
+          padding: 1rem;
+          padding-right: 2.5rem;
+          font-size: 1rem;
+        }
+
+        .custom-dropdown-menu {
+          max-height: 240px;
+        }
+
+        .btn-primary,
+        .btn-secondary,
+        .btn-danger {
+          padding: 1rem 1.5rem;
+          font-size: 0.875rem;
+          width: 100%;
+        }
+
+        .btn-secondary {
+          margin-top: 0.75rem;
+        }
+
+        .setting-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+          padding: 1.5rem 0;
+        }
+
+        .setting-row:hover {
+          padding-left: 0;
+        }
+
+        .toggle-switch {
+          align-self: flex-end;
+        }
+
+        header {
+          padding-top: 1rem;
+          padding-bottom: 1rem;
+          padding-left: 4rem;
+          grid-template-columns: auto 1fr auto;
+        }
+
+        header nav {
+          display: none;
+        }
+
+        #userChip {
+          border-left: none;
+          padding-left: 0;
+        }
+
+        #userAvatar {
+          width: 36px !important;
+          height: 36px !important;
+          font-size: 0.625rem !important;
+        }
+
+        #userName {
+          font-size: 0.8125rem !important;
+        }
+
+        #userTimezone {
+          font-size: 0.5625rem !important;
+        }
+
+        .content-section {
+          margin-bottom: 2.5rem;
+        }
+
+        .space-y-6 > * + * {
+          margin-top: 1.25rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .settings-main {
+          padding: 1.25rem 1rem;
+        }
+
+        .settings-card {
+          padding: 1.5rem;
+          margin-bottom: 2rem;
+        }
+
+        .card-header {
+          margin-bottom: 1.5rem;
+          padding-bottom: 1rem;
+        }
+
+        .account-action-content {
+          padding-right: 1rem;
+        }
+
+        .account-action-item {
+          padding: 1.5rem 0;
+        }
+
+        .account-divider {
+          padding-top: 1.5rem;
+        }
+
+        .settings-sidebar {
+          width: 240px;
+        }
+
+        .sidebar-toggle {
+          width: 32px;
+          height: 32px;
+        }
+
+        .section-title {
+          font-size: 1.125rem;
+        }
+
+        .card-title {
+          font-size: 1rem;
+        }
+
+        .category-link {
+          padding: 0.75rem 1.25rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .settings-main {
+          padding: 1rem 0.875rem;
+        }
+
+        .settings-card {
+          padding: 1.25rem;
+          margin-bottom: 1.75rem;
+        }
+
+        .card-header {
+          margin-bottom: 1.25rem;
+          padding-bottom: 0.875rem;
+        }
+
+        .account-action-content {
+          padding-right: 0.75rem;
+        }
+
+        .account-action-item {
+          padding: 1.25rem 0;
+        }
+
+        .account-divider {
+          padding-top: 1.25rem;
+        }
+
+        .account-divider > div {
+          margin-bottom: 1rem;
+        }
+
+        .settings-sidebar {
+          width: 220px;
+        }
+
+        .sidebar-toggle {
+          width: 30px;
+          height: 30px;
+        }
+
+        .section-header {
+          margin-bottom: 1.25rem;
+        }
+
+        .section-title {
+          font-size: 1rem;
+        }
+
+        .card-header {
+          margin-bottom: 1.25rem;
+          gap: 0.5rem;
+        }
+
+        .card-header i {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+
+        .card-title {
+          font-size: 0.9375rem;
+        }
+
+        .form-input {
+          padding: 0.875rem;
+          font-size: 0.9375rem;
+        }
+
+        .custom-dropdown-button {
+          padding: 0.875rem;
+          padding-right: 2.5rem;
+          font-size: 0.9375rem;
+        }
+
+        .custom-dropdown-menu {
+          max-height: 200px;
+        }
+
+        .settings-label {
+          font-size: 0.625rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .setting-label {
+          font-size: 0.875rem;
+        }
+
+        .setting-description {
+          font-size: 0.75rem;
+        }
+
+        .btn-primary,
+        .btn-secondary,
+        .btn-danger {
+          padding: 0.875rem 1.25rem;
+          font-size: 0.8125rem;
+        }
+
+        .avatar-preview {
+          width: 64px !important;
+          height: 64px !important;
+          font-size: 1.5rem !important;
+        }
+
+        .category-link {
+          padding: 0.625rem 1rem;
+        }
+
+        .category-name {
+          font-size: 0.8125rem;
+        }
+
+        .category-count {
+          font-size: 0.75rem;
+        }
+
+        .message {
+          font-size: 0.75rem;
+          padding: 0.875rem 1rem;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .settings-main {
+          padding: 0.875rem 0.75rem;
+        }
+
+        .settings-card {
+          padding: 0.875rem;
+        }
+
+        .mobile-sidebar {
+          width: 220px;
+        }
+      }
+
+      /* ========================================================================
+         TOUCH INTERACTIONS
+         ======================================================================== */
+      @media (hover: none) and (pointer: coarse) {
+        .category-link:active {
+          background: rgba(30, 58, 95, 0.1);
+          transform: translateX(2px) scale(0.98);
+        }
+
+        .btn-primary:active,
+        .btn-secondary:active,
+        .btn-danger:active {
+          transform: translateY(0) scale(0.98);
+        }
+
+        .setting-row:active {
+          background: rgba(30, 58, 95, 0.02);
+        }
+
+        .toggle-switch:active .toggle-slider {
+          transform: scale(0.95);
+        }
+
+        .settings-card:active {
+          transform: translateY(-1px) scale(0.998);
+        }
+      }
+
+      /* ========================================================================
+         LANDSCAPE ORIENTATION
+         ======================================================================== */
+      @media (max-height: 600px) and (orientation: landscape) {
+        .settings-main {
+          padding: 1rem 1.5rem;
+        }
+
+        .settings-card {
+          padding: 1.25rem;
+          margin-bottom: 1rem;
+        }
+
+        .section-header {
+          margin-bottom: 1rem;
+        }
+
+        .content-section {
+          margin-bottom: 1.5rem;
+        }
+      }
+
+      /* ========================================================================
+         LARGE SCREENS
+         ======================================================================== */
+      @media (min-width: 1440px) {
+        .settings-container {
+          max-width: 1600px;
+        }
+
+        .settings-main {
+          padding: 3rem 4rem;
+        }
+
+        .settings-card {
+          padding: 2.5rem;
+        }
+      }
+
+      @media (min-width: 1920px) {
+        .settings-main {
+          padding: 3.5rem 5rem;
+        }
+
+        .settings-card {
+          padding: 3rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-canvas font-sans text-ink antialiased">
+    <header id="mainHeader" class="fade-in-initial pb-5">
+      <div class="flex items-baseline gap-3">
+        <a
+          href="/home"
+          class="font-display text-2xl font-medium tracking-tight hover:opacity-80 transition-opacity"
+          >Kōsui</a
+        >
+      </div>
+      <nav
+        class="flex items-center justify-center gap-2 text-[0.65rem] font-medium uppercase tracking-[0.4em]"
+      >
+        <a
+          href="/home"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Home</a
+        >
+        <a
+          href="/home#dashboard"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Dashboard</a
+        >
+        <a
+          href="/home#trips"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Trips</a
+        >
+        <a
+          href="/home#tools"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Tools</a
+        >
+      </nav>
+      <div class="relative">
+        <div
+          id="userChip"
+          class="flex cursor-pointer items-center gap-2.5 border-l-2 border-ink/10 pl-6"
+        >
+          <div class="text-right leading-tight">
+            <p id="userName" class="text-sm font-semibold">Explorer</p>
+            <small class="text-[0.65rem] uppercase tracking-[0.3em] text-muted">
+              <span id="userTimezone">GMT+8</span>
+            </small>
+          </div>
+          <div
+            id="userAvatar"
+            class="flex h-9 w-9 items-center justify-center border-2 border-navy bg-navy font-mono text-xs font-bold text-sheet"
+          >
+            EX
+          </div>
+        </div>
+
+        <div
+          id="userDropdown"
+          class="invisible absolute right-0 top-full z-[100] mt-3 opacity-0"
+        >
+          <div>
+            <div class="dropdown-item" data-action="profile">
+              <i data-lucide="user"></i>
+              <span>Profile</span>
+            </div>
+            <div class="dropdown-item" data-action="settings">
+              <i data-lucide="settings"></i>
+              <span>Settings</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div>
+            <div class="dropdown-item" data-action="logout">
+              <i data-lucide="log-out"></i>
+              <span>Sign Out</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="settings-container">
+      <aside class="settings-sidebar" id="settingsSidebar">
+        <button
+          id="sidebarToggle"
+          class="sidebar-toggle"
+          aria-label="Toggle sidebar"
+          onclick="toggleSidebar()"
+        >
+          <i data-lucide="chevron-left"></i>
+        </button>
+        <div class="sidebar-header">
+          <h1 class="sidebar-title">Settings</h1>
+          <p class="sidebar-subtitle">
+            Manage your account preferences and travel settings
+          </p>
+        </div>
+        <ul class="category-list">
+          <li class="category-item">
+            <a
+              href="#profile-section"
+              class="category-link"
+              onclick="scrollToSection('profile-section'); return false;"
+            >
+              <span class="category-name">Profile</span>
+              <span class="category-count">4</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a
+              href="#notifications-section"
+              class="category-link"
+              onclick="scrollToSection('notifications-section'); return false;"
+            >
+              <span class="category-name">Notifications</span>
+              <span class="category-count">5</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a
+              href="#travel-section"
+              class="category-link"
+              onclick="scrollToSection('travel-section'); return false;"
+            >
+              <span class="category-name">Travel Preferences</span>
+              <span class="category-count">3</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a
+              href="#privacy-section"
+              class="category-link"
+              onclick="scrollToSection('privacy-section'); return false;"
+            >
+              <span class="category-name">Privacy</span>
+              <span class="category-count">3</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a
+              href="#security-section"
+              class="category-link"
+              onclick="scrollToSection('security-section'); return false;"
+            >
+              <span class="category-name">Security</span>
+              <span class="category-count">3</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a
+              href="#account-section"
+              class="category-link"
+              onclick="scrollToSection('account-section'); return false;"
+            >
+              <span class="category-name">Account</span>
+              <span class="category-count">2</span>
+            </a>
+          </li>
+        </ul>
+      </aside>
+
+      <main class="settings-main">
+        <section id="profile-section" class="content-section">
+          <div class="section-header">
+            <h2 class="section-title">Profile</h2>
+            <p class="section-description">
+              Manage your personal information and profile settings
+            </p>
+          </div>
+
+          <div class="section-message-container"></div>
+
+          <div class="settings-card">
+            <div class="card-header">
+              <i data-lucide="user"></i>
+              <h3 class="card-title">Personal Information</h3>
+            </div>
+            <div class="space-y-6">
+              <div>
+                <label class="settings-label">Profile Picture</label>
+                <div class="flex items-center gap-4">
+                  <div class="avatar-upload">
+                    <div
+                      id="avatarPreview"
+                      class="avatar-preview flex h-20 w-20 items-center justify-center border-2 border-navy bg-navy font-mono text-2xl font-bold text-sheet"
+                    >
+                      EX
+                    </div>
+                    <div class="avatar-overlay">
+                      <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <input
+                      type="file"
+                      id="avatarInput"
+                      accept="image/*"
+                      class="hidden"
+                    />
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      onclick="document.getElementById('avatarInput').click()"
+                      class="btn-secondary"
+                    >
+                      Change Photo
+                    </button>
+                    <p class="text-xs text-muted mt-2">
+                      JPG, PNG or GIF. Max size 2MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label for="userNameInput" class="settings-label"
+                  >Full Name</label
+                >
+                <input
+                  type="text"
+                  id="userNameInput"
+                  class="form-input"
+                  placeholder="Enter your full name"
+                  value="Explorer"
+                />
+              </div>
+
+              <div>
+                <label for="userEmailInput" class="settings-label">Email</label>
+                <input
+                  type="email"
+                  id="userEmailInput"
+                  class="form-input"
+                  placeholder="your.email@example.com"
+                  value="explorer@kosui.com"
+                />
+              </div>
+
+              <div class="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  class="btn-primary"
+                  onclick="saveProfile()"
+                >
+                  <span>Save Changes</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  onclick="resetProfile()"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="notifications-section" class="content-section">
+          <div class="section-header">
+            <h2 class="section-title">Notifications</h2>
+            <p class="section-description">
+              Control how and when you receive notifications
+            </p>
+          </div>
+
+          <div class="settings-card">
+            <div class="card-header">
+              <i data-lucide="bell"></i>
+              <h3 class="card-title">Notification Preferences</h3>
+            </div>
+            <div class="space-y-0">
+              <div class="setting-row">
+                <div class="setting-info">
+                  <div class="setting-label">Email Notifications</div>
+                  <div class="setting-description">
+                    Receive email updates about your trips
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="emailNotifications" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info">
+                  <div class="setting-label">Flight Alerts</div>
+                  <div class="setting-description">
+                    Get notified about flight delays and gate changes
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="flightAlerts" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info">
+                  <div class="setting-label">Trip Reminders</div>
+                  <div class="setting-description">
+                    Reminders for upcoming trips and activities
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="tripReminders" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info">
+                  <div class="setting-label">Group Activity</div>
+                  <div class="setting-description">
+                    Notifications when group members update trips
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input
+                    type="checkbox"
+                    id="groupActivityNotifications"
+                    checked
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info">
+                  <div class="setting-label">Marketing Emails</div>
+                  <div class="setting-description">
+                    Receive updates about new features and travel tips
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="marketingEmails" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="travel-section" class="content-section">
+          <div class="section-header">
+            <h2 class="section-title">Travel Preferences</h2>
+            <p class="section-description">
+              Customize your travel experience and preferences
+            </p>
+          </div>
+
+          <div class="section-message-container"></div>
+
+          <div class="settings-card">
+            <div class="card-header">
+              <i data-lucide="map"></i>
+              <h3 class="card-title">Regional Settings</h3>
+            </div>
+            <div class="space-y-6">
+              <div>
+                <label for="currencySelect" class="settings-label"
+                  >Currency</label
+                >
+                <div class="custom-dropdown" data-select-id="currencySelect">
+                  <button
+                    type="button"
+                    class="custom-dropdown-button"
+                    aria-label="Select currency"
+                  >
+                    <span class="dropdown-value">USD ($)</span>
+                    <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+                  </button>
+                  <div class="custom-dropdown-menu">
+                    <div
+                      class="custom-dropdown-option selected"
+                      data-value="USD"
+                    >
+                      USD ($)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="SGD">
+                      SGD (S$)
+                    </div>
+                  </div>
+                  <select id="currencySelect" class="form-select">
+                    <option value="USD" selected>USD ($)</option>
+                    <option value="SGD">SGD (S$)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label for="unitsSelect" class="settings-label">Units</label>
+                <div class="custom-dropdown" data-select-id="unitsSelect">
+                  <button
+                    type="button"
+                    class="custom-dropdown-button"
+                    aria-label="Select units"
+                  >
+                    <span class="dropdown-value">Metric (km, °C)</span>
+                    <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+                  </button>
+                  <div class="custom-dropdown-menu">
+                    <div
+                      class="custom-dropdown-option selected"
+                      data-value="metric"
+                    >
+                      Metric (km, °C)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="imperial">
+                      Imperial (miles, °F)
+                    </div>
+                  </div>
+                  <select id="unitsSelect" class="form-select">
+                    <option value="metric" selected>Metric (km, °C)</option>
+                    <option value="imperial">Imperial (miles, °F)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label for="timezoneSelect" class="settings-label"
+                  >Timezone</label
+                >
+                <div class="custom-dropdown" data-select-id="timezoneSelect">
+                  <button
+                    type="button"
+                    class="custom-dropdown-button"
+                    aria-label="Select timezone"
+                  >
+                    <span class="dropdown-value">GMT+8 (Singapore Time)</span>
+                    <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+                  </button>
+                  <div class="custom-dropdown-menu">
+                    <div class="custom-dropdown-option" data-value="GMT-12">
+                      GMT-12 (Baker Island Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-11">
+                      GMT-11 (Hawaii Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-10">
+                      GMT-10 (Alaska Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-9">
+                      GMT-9 (Pacific Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-8">
+                      GMT-8 (Mountain Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-7">
+                      GMT-7 (Central Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-6">
+                      GMT-6 (Eastern Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-5">
+                      GMT-5 (Atlantic Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-4">
+                      GMT-4 (Venezuela Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-3">
+                      GMT-3 (Argentina Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-2">
+                      GMT-2 (Mid-Atlantic Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT-1">
+                      GMT-1 (Azores Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+0">
+                      GMT+0 (Greenwich Mean Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+1">
+                      GMT+1 (Central European Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+2">
+                      GMT+2 (Eastern European Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+3">
+                      GMT+3 (Moscow Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+4">
+                      GMT+4 (Gulf Standard Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+5">
+                      GMT+5 (Pakistan Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+6">
+                      GMT+6 (Bangladesh Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+7">
+                      GMT+7 (Indochina Time)
+                    </div>
+                    <div
+                      class="custom-dropdown-option selected"
+                      data-value="GMT+8"
+                    >
+                      GMT+8 (Singapore Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+9">
+                      GMT+9 (Japan Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+10">
+                      GMT+10 (Australian Eastern Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+11">
+                      GMT+11 (Solomon Islands Time)
+                    </div>
+                    <div class="custom-dropdown-option" data-value="GMT+12">
+                      GMT+12 (New Zealand Time)
+                    </div>
+                  </div>
+                  <select id="timezoneSelect" class="form-select">
+                    <option value="GMT-12">GMT-12 (Baker Island Time)</option>
+                    <option value="GMT-11">GMT-11 (Hawaii Time)</option>
+                    <option value="GMT-10">GMT-10 (Alaska Time)</option>
+                    <option value="GMT-9">GMT-9 (Pacific Time)</option>
+                    <option value="GMT-8">GMT-8 (Mountain Time)</option>
+                    <option value="GMT-7">GMT-7 (Central Time)</option>
+                    <option value="GMT-6">GMT-6 (Eastern Time)</option>
+                    <option value="GMT-5">GMT-5 (Atlantic Time)</option>
+                    <option value="GMT-4">GMT-4 (Venezuela Time)</option>
+                    <option value="GMT-3">GMT-3 (Argentina Time)</option>
+                    <option value="GMT-2">GMT-2 (Mid-Atlantic Time)</option>
+                    <option value="GMT-1">GMT-1 (Azores Time)</option>
+                    <option value="GMT+0">GMT+0 (Greenwich Mean Time)</option>
+                    <option value="GMT+1">GMT+1 (Central European Time)</option>
+                    <option value="GMT+2">GMT+2 (Eastern European Time)</option>
+                    <option value="GMT+3">GMT+3 (Moscow Time)</option>
+                    <option value="GMT+4">GMT+4 (Gulf Standard Time)</option>
+                    <option value="GMT+5">GMT+5 (Pakistan Time)</option>
+                    <option value="GMT+6">GMT+6 (Bangladesh Time)</option>
+                    <option value="GMT+7">GMT+7 (Indochina Time)</option>
+                    <option value="GMT+8" selected>
+                      GMT+8 (Singapore Time)
+                    </option>
+                    <option value="GMT+9">GMT+9 (Japan Time)</option>
+                    <option value="GMT+10">
+                      GMT+10 (Australian Eastern Time)
+                    </option>
+                    <option value="GMT+11">
+                      GMT+11 (Solomon Islands Time)
+                    </option>
+                    <option value="GMT+12">GMT+12 (New Zealand Time)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  class="btn-primary"
+                  onclick="savePreferences()"
+                >
+                  <span>Save Changes</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="privacy-section" class="content-section">
+          <div class="section-header">
+            <h2 class="section-title">Privacy</h2>
+            <p class="section-description">
+              Manage your privacy settings and data sharing preferences
+            </p>
+          </div>
+
+          <div class="settings-card">
+            <div class="card-header">
+              <i data-lucide="shield"></i>
+              <h3 class="card-title">Privacy Controls</h3>
+            </div>
+            <div class="space-y-0">
+              <div class="setting-row">
+                <div class="setting-info">
+                  <div class="setting-label">Profile Visibility</div>
+                  <div class="setting-description">
+                    Allow others to see your profile in group trips
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="profileVisibility" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info">
+                  <div class="setting-label">Activity Status</div>
+                  <div class="setting-description">
+                    Show when you're online or recently active
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="activityStatusVisible" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info">
+                  <div class="setting-label">Data Analytics</div>
+                  <div class="setting-description">
+                    Help improve Kōsui by sharing anonymous usage data
+                  </div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="allowDataAnalytics" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="security-section" class="content-section">
+          <div class="section-header">
+            <h2 class="section-title">Security</h2>
+            <p class="section-description">
+              Update your password and security settings
+            </p>
+          </div>
+
+          <div class="section-message-container"></div>
+
+          <div class="settings-card">
+            <div class="card-header">
+              <i data-lucide="lock"></i>
+              <h3 class="card-title">Password & Security</h3>
+            </div>
+            <div class="space-y-6">
+              <div>
+                <label for="currentPassword" class="settings-label"
+                  >Current Password</label
+                >
+                <input
+                  type="password"
+                  id="currentPassword"
+                  class="form-input"
+                  placeholder="Enter current password"
+                />
+              </div>
+
+              <div>
+                <label for="newPassword" class="settings-label"
+                  >New Password</label
+                >
+                <input
+                  type="password"
+                  id="newPassword"
+                  class="form-input"
+                  placeholder="Enter new password"
+                />
+                <p class="text-xs text-muted mt-2">
+                  Must be at least 8 characters with letters and numbers
+                </p>
+              </div>
+
+              <div>
+                <label for="confirmPassword" class="settings-label"
+                  >Confirm New Password</label
+                >
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  class="form-input"
+                  placeholder="Confirm new password"
+                />
+              </div>
+
+              <div class="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  class="btn-primary"
+                  onclick="changePassword()"
+                >
+                  <span>Update Password</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="account-section" class="content-section">
+          <div class="section-header">
+            <h2 class="section-title">Account</h2>
+            <p class="section-description">
+              Manage your account data and settings
+            </p>
+          </div>
+
+          <div class="section-message-container"></div>
+
+          <div class="settings-card">
+            <div class="card-header">
+              <i data-lucide="alert-circle"></i>
+              <h3 class="card-title">Account Actions</h3>
+            </div>
+            <div class="space-y-0">
+              <div
+                class="account-action-item flex items-center justify-between"
+              >
+                <div class="account-action-content">
+                  <div class="setting-label account-action-label">
+                    Export Data
+                  </div>
+                  <div class="setting-description">
+                    Download all your trip data and information
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-secondary account-action-button"
+                  onclick="exportData()"
+                >
+                  Export
+                </button>
+              </div>
+
+              <div class="account-divider">
+                <div class="mb-4">
+                  <div class="setting-label account-action-label">
+                    Delete Account
+                  </div>
+                  <div class="setting-description">
+                    Permanently delete your account and all associated data.
+                    This action cannot be undone.
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-danger"
+                  onclick="deleteAccount()"
+                >
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="userDropdownBackdrop" class="fixed inset-0 z-50 hidden"></div>
+
+    <div id="messageContainer" class="fixed top-24 right-5 z-50 max-w-sm"></div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div id="deleteAccountModal" class="delete-modal-overlay hidden">
+      <div class="delete-modal">
+        <div class="delete-modal-header">
+          <i data-lucide="alert-triangle" class="delete-modal-icon"></i>
+          <h3 class="delete-modal-title">Delete Account</h3>
+        </div>
+        <div class="delete-modal-body">
+          <p class="delete-modal-message">
+            Are you sure you want to delete your account? This action cannot be
+            undone.
+          </p>
+          <p class="delete-modal-warning">
+            This will permanently delete all your data, including trips,
+            preferences, and account information.
+          </p>
+          <div class="delete-modal-input-group">
+            <label for="deleteConfirmInput" class="delete-modal-label">
+              Type <strong>DELETE</strong> to confirm:
+            </label>
+            <input
+              type="text"
+              id="deleteConfirmInput"
+              class="delete-modal-input"
+              placeholder="Type DELETE here"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+        <div class="delete-modal-footer">
+          <button
+            type="button"
+            class="btn-secondary delete-modal-cancel"
+            onclick="closeDeleteModal()"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn-danger delete-modal-confirm"
+            onclick="confirmDeleteAccount()"
+            disabled
+          >
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Protection Script -->
+    <script>
+      /**
+       * Authentication Protection
+       * Note: Server-side middleware handles authentication and redirects.
+       * This page will only load if the user is authenticated.
+       */
+    </script>
+
+    <script src="../vendor/lucide.min.js"></script>
+    <script src="../scripts/pages/index.js" defer></script>
+    <script src="../scripts/shared/utils.js"></script>
+    <script src="../scripts/shared/constants.js"></script>
+    <script src="../scripts/shared/messageManager.js"></script>
+    <script src="../scripts/pages/settings.js" defer></script>
+  </body>
+</html>

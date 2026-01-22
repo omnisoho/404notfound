@@ -1,0 +1,7 @@
+-- CreateEnum
+CREATE TYPE "TripStatus" AS ENUM ('PLANNING', 'PLANNING_COMPLETE', 'IN_PROGRESS', 'COMPLETED');
+
+-- AlterTable
+ALTER TABLE "Trip" ADD COLUMN     "completedAt" TIMESTAMP(3),
+ADD COLUMN     "planningProgress" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "status" "TripStatus" NOT NULL DEFAULT 'PLANNING';

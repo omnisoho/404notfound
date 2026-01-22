@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Analytics Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="padding: 20px; font-family: Arial;">
+  <h1>Analytics Test Page</h1>
+  <button onclick="testAnalytics()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Load Analytics</button>
+  <div id="result" style="margin-top: 20px;"></div>
+
+  <div style="margin-top: 40px;">
+    <h2>User Growth Chart</h2>
+    <canvas id="testChart" width="600" height="400"></canvas>
+  </div>
+
+  <script>
+    async function testAnalytics() {
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      const resultDiv = document.getElementById('result');
+
+      try {
+        resultDiv.innerHTML = '<p>Fetching analytics...</p>';
+
+        const response = await fetch('/api/admin/analytics?dateRange=30d', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+
+        // Draw chart
+        if (data.userGrowth && data.userGrowth.labels) {
+          const ctx = document.getElementById('testChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: data.userGrowth.labels,
+              datasets: [{
+                label: 'New Users',
+                data: data.userGrowth.data,
+                borderColor: 'rgb(30, 58, 95)',
+                backgroundColor: 'rgba(30, 58, 95, 0.1)',
+                tension: 0.4,
+                fill: true
+              }]
+            },
+            options: {
+              responsive: false,
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          });
+        }
+      } catch (error) {
+        resultDiv.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>

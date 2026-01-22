@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile — Kōsui</title>
+    <link rel="stylesheet" href="../styles/output.css" />
+    <style>
+      /* ========================================================================
+         CSS VARIABLES - Design System Tokens (from home.html)
+         ======================================================================== */
+      :root {
+        --ink: #060606;
+        --canvas: #f3f1eb;
+        --sheet: #fefdf9;
+        --border: #dcd6c8;
+        --muted: #6d7177;
+        --navy: #1e3a5f;
+        --navy-light: #2d4f7c;
+        --easing-premium: cubic-bezier(0.16, 1, 0.3, 1);
+        --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --transition-fast: 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+        --transition-base: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      /* ========================================================================
+         FONTS
+         ======================================================================== */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap");
+
+      /* ========================================================================
+         BASE STYLES
+         ======================================================================== */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* ========================================================================
+         ANIMATIONS - SCROLL REVEAL
+         ======================================================================== */
+      .scroll-reveal {
+        opacity: 0;
+        transform: translateY(60px);
+        transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .scroll-reveal.revealed {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* ========================================================================
+         NAVIGATION (Exact same as home.html)
+         ======================================================================== */
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 100;
+        background: var(--canvas);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding-top: 1.5rem;
+        padding-bottom: 1.25rem;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 2rem;
+        max-width: 80rem;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+        border-bottom: none;
+      }
+
+      header::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 2.5rem);
+        height: 2px;
+        background: rgba(0, 0, 0, 0.1);
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      header.scrolled {
+        background: rgba(243, 241, 235, 0.85) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      header.scrolled::before {
+        width: 100vw;
+      }
+
+      header nav a {
+        position: relative;
+        display: inline-block;
+        padding: 0.625rem 1.25rem !important;
+      }
+
+      header nav a::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 4px;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          #060606 0%,
+          #060606 50%,
+          transparent 50%,
+          transparent 100%
+        );
+        background-size: 200% 100%;
+        background-position: 100% 0;
+        opacity: 0;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      header nav a:hover::before {
+        opacity: 1;
+        background-position: 0 0;
+      }
+
+      header nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 3px;
+        width: 3px;
+        height: 3px;
+        background: #060606;
+        border-radius: 50%;
+        opacity: 0;
+        box-shadow: calc(100% - 3px) 0 0 0 #060606;
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition-delay: 0.2s;
+      }
+
+      header nav a:hover::after {
+        opacity: 1;
+        transform: scale(1.3);
+      }
+
+      /* User Chip */
+      #userChip {
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      #userChip::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 2px;
+        height: 0;
+        background: #060606;
+        transform: translateY(-50%);
+        transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      #userChip:hover::before {
+        height: 100%;
+      }
+
+      #userChip:hover {
+        padding-left: 1.75rem;
+      }
+
+      #userChip:hover #userAvatar {
+        transform: rotate(3deg) scale(1.05);
+        box-shadow: 0 0 0 1px rgba(6, 6, 6, 0.1), 0 2px 8px rgba(6, 6, 6, 0.12);
+      }
+
+      #userChip:hover #userName {
+        letter-spacing: 0.02em;
+      }
+
+      #userAvatar {
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      #userAvatar img {
+        border-radius: 0 !important;
+      }
+
+      #userName {
+        transition: letter-spacing 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* User Dropdown */
+      #userDropdown {
+        min-width: 180px;
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
+          0 1px 4px rgba(0, 0, 0, 0.04);
+        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+          visibility 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top right;
+        padding: 0.25rem 0;
+        transform: translateY(-8px) scale(0.96);
+        overflow: hidden;
+        position: absolute;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        top: 100%;
+        right: 0;
+        margin-top: 0.5rem;
+      }
+
+      #userDropdown.active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+      }
+
+      #userDropdown::before {
+        content: "";
+        position: absolute;
+        top: -5px;
+        right: 20px;
+        width: 10px;
+        height: 10px;
+        background: var(--sheet);
+        border-left: 1px solid var(--border);
+        border-top: 1px solid var(--border);
+        transform: rotate(45deg);
+        box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.03);
+        z-index: 1;
+      }
+
+      .dropdown-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: var(--ink);
+        transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+          padding-left 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+          color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+      }
+
+      .dropdown-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: rgba(30, 58, 95, 0.06);
+        transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 0;
+        border-radius: 0 1px 1px 0;
+      }
+
+      .dropdown-item:hover::before {
+        width: 2px;
+      }
+
+      .dropdown-item:hover {
+        background: rgba(30, 58, 95, 0.04);
+        padding-left: 1.125rem;
+        color: var(--navy);
+      }
+
+      .dropdown-item i {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2;
+        color: var(--muted);
+        transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .dropdown-item:hover i {
+        color: var(--navy);
+      }
+
+      .dropdown-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 0.25rem 0;
+        opacity: 0.5;
+      }
+
+      /* ========================================================================
+         PROFILE PAGE STYLES
+         ======================================================================== */
+      .stat-card {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(6, 6, 6, 0.08);
+      }
+
+      .profile-avatar {
+        border-radius: 0 !important;
+      }
+
+      .profile-avatar img {
+        border-radius: 0 !important;
+      }
+
+      .status-dot {
+        width: 0.75rem;
+        height: 0.75rem;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .trip-card {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .trip-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(6, 6, 6, 0.12);
+      }
+
+      .achievement-badge {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .achievement-badge:hover {
+        transform: scale(1.05);
+      }
+
+      /* Edit Mode Overlay */
+      .edit-mode-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .edit-mode-overlay.active {
+        display: flex;
+      }
+
+      .edit-panel {
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 2rem;
+      }
+
+      .visibility-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        margin-bottom: 0.75rem;
+        background: var(--sheet);
+        transition: all 0.2s;
+      }
+
+      .visibility-toggle:hover {
+        border-color: var(--navy);
+      }
+
+      .photo-grid-edit {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+
+      .photo-item-edit {
+        position: relative;
+        aspect-ratio: 1;
+        border: 2px solid var(--border);
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .photo-item-edit:hover {
+        border-color: var(--navy);
+      }
+
+      .photo-item-edit.visible {
+        border-color: var(--navy);
+      }
+
+      .photo-item-edit img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .photo-checkbox {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        background: var(--sheet);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .photo-item-edit.visible .photo-checkbox {
+        background: var(--navy);
+        border-color: var(--navy);
+      }
+
+      .photo-item-edit.visible .photo-checkbox::after {
+        content: "✓";
+        color: var(--sheet);
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      /* Photo Lightbox */
+      .photo-lightbox {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      .photo-lightbox.active {
+        display: flex;
+      }
+
+      .photo-lightbox img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      .photo-lightbox-close {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        width: 3rem;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .photo-lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-canvas font-sans text-ink antialiased">
+    <!-- Header (Exact same as home.html) -->
+    <header id="mainHeader" class="fade-in-initial">
+      <div class="flex items-baseline gap-3">
+        <a href="/home" class="font-display text-2xl font-medium tracking-tight"
+          >Kōsui</a
+        >
+      </div>
+      <nav
+        class="flex items-center justify-center gap-2 text-[0.65rem] font-medium uppercase tracking-[0.4em]"
+      >
+        <a
+          href="/home"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Home</a
+        >
+        <a
+          href="/home"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Dashboard</a
+        >
+        <a
+          href="/home#trips"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Trips</a
+        >
+        <a
+          href="/home#tools"
+          class="px-5 py-2.5 text-muted transition-all duration-300 hover:text-ink"
+          >Tools</a
+        >
+      </nav>
+      <div class="relative">
+        <div
+          id="userChip"
+          class="flex cursor-pointer items-center gap-2.5 border-l-2 border-ink/10 pl-6"
+        >
+          <div class="text-right leading-tight">
+            <p id="userName" class="text-sm font-semibold">Explorer</p>
+            <small class="text-[0.65rem] uppercase tracking-[0.3em] text-muted">
+              <span id="userTimezone">GMT+8</span>
+            </small>
+          </div>
+          <div
+            id="userAvatar"
+            class="flex h-8 w-8 items-center justify-center border-2 border-navy bg-navy font-mono text-xs font-bold text-sheet"
+          >
+            EX
+          </div>
+        </div>
+
+        <!-- User Dropdown Menu -->
+        <div
+          id="userDropdown"
+          class="invisible absolute right-0 top-full z-[100] mt-3 opacity-0"
+        >
+          <div>
+            <div class="dropdown-item" data-action="profile">
+              <i data-lucide="user"></i>
+              <span>Profile</span>
+            </div>
+            <div class="dropdown-item" data-action="settings">
+              <i data-lucide="settings"></i>
+              <span>Settings</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div>
+            <div class="dropdown-item" data-action="logout">
+              <i data-lucide="log-out"></i>
+              <span>Sign Out</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div
+      class="mx-auto max-w-7xl space-y-8 px-5 pb-6"
+      style="margin-top: clamp(5rem, 8vh, 6rem); padding-top: 2rem"
+    >
+      <!-- Dropdown backdrop -->
+      <div id="userDropdownBackdrop" class="fixed inset-0 z-50 hidden"></div>
+
+      <!-- Profile Header Section -->
+      <section class="scroll-reveal delay-100">
+        <div class="border border-border bg-sheet p-6 md:p-8">
+          <div class="flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
+            <!-- Avatar -->
+            <div
+              id="profileAvatar"
+              class="flex h-24 w-24 flex-shrink-0 items-center justify-center border-2 border-border bg-canvas font-display text-3xl font-semibold md:h-32 md:w-32"
+            >
+              <!-- Avatar will be populated by JS -->
+            </div>
+
+            <!-- Profile Info -->
+            <div class="flex-1">
+              <div class="mb-4 flex items-center gap-3">
+                <h1
+                  id="profileName"
+                  class="font-display text-3xl font-semibold tracking-tight md:text-4xl"
+                >
+                  Loading...
+                </h1>
+                <div id="profileStatus" class="flex items-center gap-2">
+                  <div class="status-dot"></div>
+                  <span class="text-sm text-muted">Active now</span>
+                </div>
+              </div>
+              <p id="profileEmail" class="mb-4 text-sm text-muted"></p>
+              <div class="flex flex-wrap gap-4 text-sm text-muted">
+                <span id="memberSince">Member since 2024</span>
+                <span>•</span>
+                <span id="totalTrips">0 trips</span>
+                <span>•</span>
+                <span id="countriesVisited">0 countries</span>
+              </div>
+              <div class="mt-6 flex gap-3">
+                <button
+                  id="editProfileBtn"
+                  class="hidden border border-navy bg-navy px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-sheet transition-all duration-300 hover:bg-transparent hover:text-navy"
+                >
+                  Edit Profile
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Statistics Dashboard -->
+      <section class="scroll-reveal delay-200">
+        <div
+          class="mb-4 flex items-end justify-between border-b border-border pb-4"
+        >
+          <div>
+            <p
+              class="text-xs font-medium uppercase tracking-[0.4em] text-muted mb-2"
+            >
+              OVERVIEW
+            </p>
+            <h2
+              class="font-display text-2xl font-semibold tracking-tight text-ink"
+            >
+              Travel Statistics
+            </h2>
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <article
+            class="stat-card space-y-2 border border-border bg-sheet p-5"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-[0.65rem] uppercase tracking-[0.4em] text-muted">
+                Total Trips
+              </p>
+              <i data-lucide="map" class="h-4 w-4 text-muted"></i>
+            </div>
+            <p id="statTotalTrips" class="font-display text-3xl font-semibold">
+              0
+            </p>
+            <p class="text-xs text-muted">All time</p>
+          </article>
+          <article
+            class="stat-card space-y-2 border border-border bg-sheet p-5"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-[0.65rem] uppercase tracking-[0.4em] text-muted">
+                Countries
+              </p>
+              <i data-lucide="globe" class="h-4 w-4 text-muted"></i>
+            </div>
+            <p id="statCountries" class="font-display text-3xl font-semibold">
+              0
+            </p>
+            <p class="text-xs text-muted">Unique destinations</p>
+          </article>
+          <article
+            class="stat-card space-y-2 border border-border bg-sheet p-5"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-[0.65rem] uppercase tracking-[0.4em] text-muted">
+                Days Traveled
+              </p>
+              <i data-lucide="calendar" class="h-4 w-4 text-muted"></i>
+            </div>
+            <p
+              id="statDaysTraveled"
+              class="font-display text-3xl font-semibold"
+            >
+              0
+            </p>
+            <p class="text-xs text-muted">Total duration</p>
+          </article>
+          <article
+            class="stat-card space-y-2 border border-border bg-sheet p-5"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-[0.65rem] uppercase tracking-[0.4em] text-muted">
+                Photos Shared
+              </p>
+              <i data-lucide="image" class="h-4 w-4 text-muted"></i>
+            </div>
+            <p id="statPhotos" class="font-display text-3xl font-semibold">0</p>
+            <p class="text-xs text-muted">On profile</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Additional Statistics -->
+      <section class="scroll-reveal delay-300 grid gap-4 md:grid-cols-2">
+        <article class="stat-card space-y-4 border border-border bg-sheet p-6">
+          <div class="flex items-center justify-between">
+            <p
+              class="text-xs font-medium uppercase tracking-[0.4em] text-muted"
+            >
+              FLIGHTS TRACKED
+            </p>
+            <i data-lucide="plane" class="h-5 w-5 text-muted"></i>
+          </div>
+          <p id="statFlights" class="font-display text-4xl font-semibold">0</p>
+          <p class="text-sm text-muted">Active and completed flights</p>
+        </article>
+        <article class="stat-card space-y-4 border border-border bg-sheet p-6">
+          <div class="flex items-center justify-between">
+            <p
+              class="text-xs font-medium uppercase tracking-[0.4em] text-muted"
+            >
+              CITIES VISITED
+            </p>
+            <i data-lucide="map-pin" class="h-5 w-5 text-muted"></i>
+          </div>
+          <p id="statCities" class="font-display text-4xl font-semibold">0</p>
+          <p class="text-sm text-muted">Unique cities explored</p>
+        </article>
+      </section>
+
+      <!-- Achievements / Milestones -->
+      <section class="scroll-reveal delay-400">
+        <div
+          class="mb-4 flex items-end justify-between border-b border-border pb-4"
+        >
+          <div>
+            <p
+              class="text-xs font-medium uppercase tracking-[0.4em] text-muted mb-2"
+            >
+              MILESTONES
+            </p>
+            <h2
+              class="font-display text-2xl font-semibold tracking-tight text-ink"
+            >
+              Achievements
+            </h2>
+          </div>
+        </div>
+        <div
+          id="achievementsGrid"
+          class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <!-- Achievements will be populated by JS -->
+        </div>
+      </section>
+
+      <!-- Recent Trips -->
+      <section class="scroll-reveal delay-500">
+        <div
+          class="mb-4 flex items-end justify-between border-b border-border pb-4"
+        >
+          <div>
+            <p
+              class="text-xs font-medium uppercase tracking-[0.4em] text-muted mb-2"
+            >
+              JOURNEYS
+            </p>
+            <h2
+              class="font-display text-2xl font-semibold tracking-tight text-ink"
+            >
+              Recent Trips
+            </h2>
+          </div>
+        </div>
+        <div id="tripsGrid" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <!-- Trips will be populated by JS -->
+        </div>
+        <div
+          id="emptyState"
+          class="hidden border border-dashed border-border bg-sheet/50 p-12 text-center"
+        >
+          <i data-lucide="map" class="mx-auto mb-4 h-12 w-12 text-muted"></i>
+          <p class="text-sm text-muted">No trips shared yet</p>
+        </div>
+      </section>
+
+      <!-- Activity Timeline (Future feature placeholder) -->
+      <section class="scroll-reveal delay-600">
+        <div
+          class="mb-4 flex items-end justify-between border-b border-border pb-4"
+        >
+          <div>
+            <p
+              class="text-xs font-medium uppercase tracking-[0.4em] text-muted mb-2"
+            >
+              ACTIVITY
+            </p>
+            <h2
+              class="font-display text-2xl font-semibold tracking-tight text-ink"
+            >
+              Recent Activity
+            </h2>
+          </div>
+        </div>
+        <div
+          id="activityTimeline"
+          class="space-y-4 border border-border bg-sheet p-6"
+        >
+          <!-- Activity items will be populated by JS -->
+          <p class="text-sm text-muted text-center">
+            Activity timeline coming soon
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Edit Mode Overlay -->
+    <div class="edit-mode-overlay" id="editOverlay">
+      <div class="edit-panel">
+        <div
+          class="flex items-center justify-between border-b border-border pb-4 mb-6"
+        >
+          <h3 class="font-display text-xl font-semibold">
+            Edit Profile Visibility
+          </h3>
+          <button class="btn-close" id="closeEditBtn">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div id="editContent">
+          <!-- Edit content will be populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo Lightbox -->
+    <div class="photo-lightbox" id="photoLightbox">
+      <button class="photo-lightbox-close" id="closeLightboxBtn">
+        <i data-lucide="x"></i>
+      </button>
+      <img id="lightboxImage" src="" alt="" />
+    </div>
+
+    <script src="../vendor/lucide.min.js"></script>
+    <script src="../scripts/pages/profile.js" defer></script>
+  </body>
+</html>

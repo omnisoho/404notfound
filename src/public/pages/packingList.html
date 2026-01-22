@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packing List</title>
+    <link rel="stylesheet" href="packingList.css">
+</head>
+<body>
+  <h1 id="TripName"></h1>
+
+  <button id="addItemButton">Add Item</button>
+
+  <!-- 🔍 Search bar -->
+  <input 
+    type="text" 
+    id="searchInput" 
+    placeholder="Search items..." 
+    style="margin: 10px 0; width: 250px;"
+  >
+<button id="suggestItemButton" style="display:none;">Suggest Item</button>
+<button id="viewSuggestedItemButton" style="display:none;">View Suggested Item</button>
+<table>
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Checked</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="itemsTableBody">
+  </tbody>
+</table>
+
+
+  <script src="../scripts/packing-list/packingList.js" type="text/javascript"></script>
+</body>
+</html>

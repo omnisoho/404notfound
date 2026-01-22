@@ -1,0 +1,28 @@
+<!-- this automatically edits the activity table by finding the name on maps and automatically adding the lat and lon to the table -->
+<h2>This is not 100% accurate and should get exact lat/lon from google maps instead if the place appears too off</h2>
+<button id="geocode-missing-btn"
+        class="mt-4 px-4 py-2 rounded bg-emerald-500 text-slate-900 text-sm font-semibold">
+  Geocode missing activity locations
+</button>
+
+<pre id="geocode-result" class="mt-2 text-xs text-slate-200"></pre>
+<script>
+  document.getElementById("geocode-missing-btn").addEventListener("click", async () => {
+    const out = document.getElementById("geocode-result");
+    out.textContent = "Running geocode...";
+    try {
+      const res = await fetch("/api/activities/geocode-missing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        out.textContent = "Error: " + (data.error || res.statusText);
+        return;
+      }
+      out.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      out.textContent = "Request failed: " + e.message;
+    }
+  });
+</script>
